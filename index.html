@@ -180,36 +180,7 @@
       <div id="roiKPIs" class="summary"></div>
       <!-- Files Tab -->
 <section id="files" class="tab-content hidden">
-  <h2>Project Files</h2>
-  <div>
-    <label for="folderSelect">Select Folder:</label>
-    <select id="folderSelect" onchange="loadFiles()">
-      <option value="quotes">Quotes</option>
-      <option value="drawings">Drawings</option>
-      <option value="folios">Folios</option>
-      <option value="renders">Renders</option>
-      <option value="draft contracts">Draft Contracts</option>
-      <option value="contracts">Contracts</option>
-    </select>
-  </div>
-  <div id="fileList" class="section-group"></div>
-</section>
-    </section>
-  
-  <!-- Files Tab -->
-  <section id="filesTab" class="tab-content hidden">
-    <h2>Project Files</h2>
-    <select id="fileFolderSelect" onchange="loadFiles()">
-      <option value="">-- Select Folder --</option>
-      <option value="quotes">Quotes</option>
-      <option value="drawings">Drawings</option>
-      <option value="folios">Folios</option>
-      <option value="renders">Renders</option>
-      <option value="draft_contracts">Draft Contracts</option>
-      <option value="contracts">Contracts</option>
-    </select>
-    <ul id="fileList"></ul>
-    <iframe id="fileViewer" style="width:100%; height:600px;" hidden></iframe>
+ <button id="btnFiles" onclick="window.open('https://aloc23.github.io/pci_project_file_viewer/', '_blank')">Files</button>
   </section>
 
 </main>

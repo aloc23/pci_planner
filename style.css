@@ -1,0 +1,208 @@
+/* Reset some basic styles */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: Arial, sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #f8f9fa;
+  color: #333;
+}
+
+header {
+  background: #2c3e50;
+  color: #ecf0f1;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+#clubLogo {
+  height: 90px;
+  width: auto;
+}
+
+h1 {
+  margin: 0;
+  font-size: 1.8rem;
+}
+
+nav.tabs {
+  display: flex;
+  background: #34495e;
+}
+
+nav.tabs button {
+  flex: 1;
+  padding: 1rem;
+  font-weight: bold;
+  background: #34495e;
+  border: none;
+  color: #ecf0f1;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+nav.tabs button:hover {
+  background: #3d566e;
+}
+
+nav.tabs button.active {
+  background: #1abc9c;
+  color: #fff;
+}
+
+main {
+  padding: 1rem 2rem 3rem;
+  max-width: 900px;
+  margin: auto;
+}
+
+.tab-content {
+  display: block;
+}
+
+.tab-content.hidden {
+  display: none;
+}
+
+.section-group {
+  background: #ffffff;
+  padding: 1rem 1.5rem;
+  margin-bottom: 1rem;
+  border-radius: 6px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.05);
+}
+
+.section-group h3 {
+  margin-top: 0;
+  margin-bottom: 0.8rem;
+  color: #2c3e50;
+}
+
+label {
+  display: flex;
+  justify-content: space-between;
+  margin: 0.3rem 0;
+  font-weight: 600;
+}
+
+label input[type=number] {
+  width: 110px;
+  padding: 5px;
+  border-radius: 3px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+}
+
+button {
+  background: #1abc9c;
+  color: #fff;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  font-size: 1rem;
+  font-weight: 700;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.3s ease;
+  margin-top: 0.5rem;
+}
+
+button:hover {
+  background: #16a085;
+}
+
+.summary {
+  background: #ecf0f1;
+  border-radius: 6px;
+  padding: 1rem 1.5rem;
+  margin-top: 1rem;
+  font-weight: 700;
+  font-size: 1.1rem;
+  box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+}
+
+.roi-summary {
+  font-weight: 700;
+  font-size: 1.2rem;
+  color: #27ae60;
+  margin-bottom: 0.5rem;
+}
+
+.roi-controls {
+  display: flex;
+  gap: 1.5rem;
+  margin-top: 1rem;
+}
+
+.roi-controls label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+}
+
+.roi-controls input[type=range] {
+  width: 150px;
+  vertical-align: middle;
+}
+
+#roiRevAdjustLabel,
+#roiCostAdjustLabel {
+  min-width: 40px;
+  display: inline-block;
+}
+
+.breakdown-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 0.7rem;
+}
+
+.breakdown-table th,
+.breakdown-table td {
+  border: 1px solid #bdc3c7;
+  padding: 0.4rem 0.7rem;
+  text-align: right;
+  font-family: monospace;
+  font-size: 0.9rem;
+}
+
+.breakdown-table th {
+  background-color: #dfe6e9;
+  text-align: center;
+}
+
+details summary {
+  cursor: pointer;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+@media (max-width: 700px) {
+  label {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+
+  label input[type=number] {
+    width: 100%;
+  }
+
+  main {
+    padding: 1rem;
+  }
+
+  nav.tabs button {
+    font-size: 0.9rem;
+  }
+
+  .roi-controls {
+    flex-direction: column;
+    gap: 0.7rem;
+  }
+}

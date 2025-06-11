@@ -1,0 +1,219 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Padel Club Investment Planner</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <img src="logo.png" alt="Club Logo" id="clubLogo" />
+    <h1>Padel Club Investment Planner</h1>
+  </header>
+  <nav class="tabs">
+    <button onclick="showTab('padel')" id="btnPadel" class="active">Padel</button>
+    <button onclick="showTab('gym')" id="btnGym">Gym</button>
+    <button onclick="showTab('pnl')" id="btnPnL">Profit & Loss</button>
+    <button onclick="showTab('roi')" id="btnROI">ROI</button>
+  <button id="btnfiles" onclick="showTab('files')">Files</button>
+</nav>
+
+  <main>
+    <!-- Padel Tab -->
+    <section id="padel" class="tab-content">
+      <h2>Padel Investment & Revenue</h2>
+      <div class="section-group">
+        <h3>Investment</h3>
+        <label>Groundworks (€)<input type="number" id="padelGround" value="50000" /></label>
+        <label>Structure (€)<input type="number" id="padelStructure" value="100000" /></label>
+        <label>Courts<input type="number" id="padelCourts" value="4" /></label>
+        <label>Per Court Cost (€)<input type="number" id="padelCourtCost" value="25000" /></label>
+        <label>Amenities (€)<input type="number" id="padelAmenities" value="15000" /></label>
+      </div>
+
+      <div class="section-group">
+        <h3>Utilisation & Revenue</h3>
+        <label>Peak Hours/Day<input type="number" id="padelPeakHours" value="5" /></label>
+        <label>Peak Hourly Rate (€)<input type="number" id="padelPeakRate" value="40" /></label>
+        <label>Peak Utilization %<input type="number" id="padelPeakUtil" value="85" /></label>
+
+        <label>Off-Peak Hours/Day<input type="number" id="padelOffHours" value="3" /></label>
+        <label>Off-Peak Hourly Rate (€)<input type="number" id="padelOffRate" value="25" /></label>
+        <label>Off-Peak Utilization %<input type="number" id="padelOffUtil" value="50" /></label>
+
+        <label>Days/Week<input type="number" id="padelDays" value="7" /></label>
+        <label>Weeks/Year<input type="number" id="padelWeeks" value="52" /></label>
+      </div>
+
+      <div class="section-group">
+        <h3>Operational Costs</h3>
+        <label>Utilities (€)<input type="number" id="padelUtil" value="10000" /></label>
+        <label>Insurance (€)<input type="number" id="padelInsure" value="5000" /></label>
+        <label>Maintenance (€)<input type="number" id="padelMaint" value="12000" /></label>
+        <label>Marketing (€)<input type="number" id="padelMarket" value="8000" /></label>
+        <label>Admin (€)<input type="number" id="padelAdmin" value="6000" /></label>
+        <label>Cleaning (€)<input type="number" id="padelClean" value="7000" /></label>
+        <label>Misc (€)<input type="number" id="padelMisc" value="2000" /></label>
+      </div>
+
+      <div class="section-group">
+        <h3>Staff</h3>
+        <label>Managers (FT)<input type="number" id="padelFtMgr" value="1" /> x Salary (€)<input type="number" id="padelFtMgrSal" value="48000" /></label>
+        <label>Reception (FT)<input type="number" id="padelFtRec" value="1" /> x Salary (€)<input type="number" id="padelFtRecSal" value="28000" /></label>
+        <label>Coaches (FT)<input type="number" id="padelFtCoach" value="2" /> x Salary (€)<input type="number" id="padelFtCoachSal" value="25980" /></label>
+        <label>Coaches (PT)<input type="number" id="padelPtCoach" value="1" /> x Salary (€)<input type="number" id="padelPtCoachSal" value="15588" /></label>
+        <label>Additional Staff<input type="number" id="padelAddStaff" value="0" /> x Salary (€)<input type="number" id="padelAddStaffSal" value="30000" /></label>
+      </div>
+
+   <button onclick="calculatePadel()">Calculate Padel</button>
+      <div id="padelSummary" class="summary"></div>
+    </section>
+
+    <!-- Gym Tab -->
+    <section id="gym" class="tab-content hidden">
+      <h2>Gym Investment & Revenue</h2>
+      <div class="section-group">
+        <h3>Investment</h3>
+        <label>Equipment (€)<input type="number" id="gymEquip" value="75000" /></label>
+        <label>Flooring (€)<input type="number" id="gymFloor" value="25000" /></label>
+        <label>Amenities (€)<input type="number" id="gymAmen" value="10000" /></label>
+      </div>
+
+      <div class="section-group">
+        <h3>Revenue</h3>
+        <label>Weekly Members<input type="number" id="gymWeekMembers" value="50" /> x Fee (€)<input type="number" id="gymWeekFee" value="15" /></label>
+        <label>Monthly Members<input type="number" id="gymMonthMembers" value="200" /> x Fee (€)<input type="number" id="gymMonthFee" value="45" /></label>
+        <label>Annual Members<input type="number" id="gymAnnualMembers" value="150" /> x Fee (€)<input type="number" id="gymAnnualFee" value="500" /></label>
+        <label><input type="checkbox" id="gymRamp" onchange="toggleRampSettings()"> Apply Ramp-Up</label>
+      </div>
+
+      <div id="rampUpSettings" class="section-group hidden">
+        <label>Ramp-Up Duration (Months):
+          <input type="range" id="rampDuration" min="1" max="12" value="6" oninput="updateRampDurationLabel(this.value)" />
+          <span id="rampDurationLabel">6</span>
+        </label>
+        <label>Ramp-Up Effectiveness (%):
+          <input type="range" id="rampEffect" min="50" max="100" value="70" oninput="updateRampEffectLabel(this.value)" />
+          <span id="rampEffectLabel">70%</span>
+        </label>
+      </div>
+
+      <div class="section-group">
+        <h3>Operational Costs</h3>
+        <label>Utilities (€)<input type="number" id="gymUtil" value="12000" /></label>
+        <label>Insurance (€)<input type="number" id="gymInsure" value="4000" /></label>
+        <label>Maintenance (€)<input type="number" id="gymMaint" value="15000" /></label>
+        <label>Marketing (€)<input type="number" id="gymMarket" value="7000" /></label>
+        <label>Admin (€)<input type="number" id="gymAdmin" value="6000" /></label>
+        <label>Cleaning (€)<input type="number" id="gymClean" value="5000" /></label>
+        <label>Misc (€)<input type="number" id="gymMisc" value="2500" /></label>
+      </div>
+
+      <div class="section-group">
+        <h3>Staff</h3>
+        <label>Trainers (FT)<input type="number" id="gymFtTrainer" value="1" /> x Salary (€)<input type="number" id="gymFtTrainerSal" value="32000" /></label>
+        <label>Trainers (PT)<input type="number" id="gymPtTrainer" value="1" /> x Salary (€)<input type="number" id="gymPtTrainerSal" value="11691" /></label>
+        <label>Additional Staff<input type="number" id="gymAddStaff" value="0" /> x Salary (€)<input type="number" id="gymAddStaffSal" value="30000" /></label>
+      </div>
+
+   <button onclick="calculateGym()">Calculate Gym</button>
+      <div id="gymSummary" class="summary"></div>
+    </section>
+
+    <!-- Profit & Loss Tab -->
+    <section id="pnl" class="tab-content hidden">
+      <h2>Profit & Loss</h2>
+      <label>
+        <input type="radio" name="pl_toggle" value="annual" checked onchange="updatePnL()"> Annual
+        <input type="radio" name="pl_toggle" value="monthly" onchange="updatePnL()"> Monthly
+      </label>
+
+      <div id="pnlSummary" class="summary"></div>
+
+      <canvas id="pnlChart" style="max-height: 300px;"></canvas>
+      <canvas id="profitTrendChart" style="max-height: 250px; margin-top: 2rem;"></canvas>
+      <canvas id="costPieChart" style="max-height: 250px; margin-top: 2rem;"></canvas>
+
+      <details style="margin-top: 1rem;">
+        <summary>Monthly Breakdown</summary>
+        <table id="monthlyBreakdown" class="breakdown-table">
+          <thead>
+            <tr><th>Month</th><th>Revenue</th><th>Costs</th><th>Profit</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </details>
+    </section>
+
+    <!-- ROI Tab -->
+    <section id="roi" class="tab-content hidden">
+      <h2>Return on Investment</h2>
+
+      <div id="yearsToROIText" class="roi-summary"></div>
+
+      <div class="roi-controls">
+        <label>Revenue Adjustment (%)
+          <input type="range" id="roiRevAdjust" min="80" max="120" value="100" oninput="updateROIAdjustmentLabel(this.value)" />
+          <span id="roiRevAdjustLabel">100%</span>
+        </label>
+        <label>Cost Adjustment (%)
+          <input type="range" id="roiCostAdjust" min="80" max="120" value="100" oninput="updateROIAdjustmentLabel(this.value)" />
+          <span id="roiCostAdjustLabel">100%</span>
+        </label>
+      </div>
+
+      <canvas id="roiLineChart" style="max-height: 250px; margin-top: 1rem;"></canvas>
+      <canvas id="roiBarChart" style="max-height: 250px; margin-top: 1rem;"></canvas>
+      <canvas id="roiPieChart" style="max-height: 250px; margin-top: 1rem;"></canvas>
+      <canvas id="roiBreakEvenChart" style="max-height: 250px; margin-top: 1rem;"></canvas>
+
+      <details style="margin-top: 1rem;">
+        <summary>Payback Period Table</summary>
+        <table id="paybackTable" class="breakdown-table">
+          <thead><tr><th>Year</th><th>Cumulative Profit (€)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </details>
+
+      <div id="roiKPIs" class="summary"></div>
+      <!-- Files Tab -->
+<section id="files" class="tab-content hidden">
+  <h2>Project Files</h2>
+  <div>
+    <label for="folderSelect">Select Folder:</label>
+    <select id="folderSelect" onchange="loadFiles()">
+      <option value="quotes">Quotes</option>
+      <option value="drawings">Drawings</option>
+      <option value="folios">Folios</option>
+      <option value="renders">Renders</option>
+      <option value="draft contracts">Draft Contracts</option>
+      <option value="contracts">Contracts</option>
+    </select>
+  </div>
+  <div id="fileList" class="section-group"></div>
+</section>
+    </section>
+  
+  <!-- Files Tab -->
+  <section id="filesTab" class="tab-content hidden">
+    <h2>Project Files</h2>
+    <select id="fileFolderSelect" onchange="loadFiles()">
+      <option value="">-- Select Folder --</option>
+      <option value="quotes">Quotes</option>
+      <option value="drawings">Drawings</option>
+      <option value="folios">Folios</option>
+      <option value="renders">Renders</option>
+      <option value="draft_contracts">Draft Contracts</option>
+      <option value="contracts">Contracts</option>
+    </select>
+    <ul id="fileList"></ul>
+    <iframe id="fileViewer" style="width:100%; height:600px;" hidden></iframe>
+  </section>
+
+</main>
+
+  <script src="script.js"></script>
+</body>
+</html>

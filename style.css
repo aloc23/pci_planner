@@ -206,3 +206,18 @@ details summary {
     gap: 0.7rem;
   }
 }
+
+#filesTab button {
+  background-color: #007bff;
+  color: white;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 6px;
+  font-size: 16px;
+  cursor: pointer;
+  margin-top: 20px;
+}
+
+#filesTab button:hover {
+  background-color: #0056b3;
+}

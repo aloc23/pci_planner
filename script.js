@@ -1,5 +1,5 @@
 // Padel Club Investment Planner - Full Featured Script
-// Includes: Scenarios, Tornado, Export, Gantt, Summaries, Charts, etc.
+// Includes: Scenarios, Tornado, Export, Interactive Gantt, Summaries, Charts, etc.
 
 // --- Utility Functions & Variable Declarations ---
 function getNumberInputValue(id) {
@@ -48,24 +48,6 @@ function calculateStaffCosts(ids) {
 let pnlChart, profitTrendChart, costPieChart, roiLineChart, roiBarChart, roiPieChart, roiBreakEvenChart, tornadoChart;
 function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
 
-// --- Tab Navigation & Scroll ---
-function showTab(tabId) {
-  document.querySelectorAll('.tab-content').forEach(sec => {
-    sec.classList.toggle('hidden', sec.id !== tabId);
-  });
-  document.querySelectorAll('nav.tabs button').forEach(btn => {
-    const isActive = btn.dataset.tab === tabId;
-    btn.classList.toggle('active', isActive);
-    if (isActive) btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-  });
-  if (tabId === 'pnl') updatePnL();
-  if (tabId === 'roi') { updateROI(); drawTornadoChart(); }
-  if (tabId === 'summary') generateSummaryReport();
-  if (tabId === 'gantt') drawGantt();
-  if (tabId === 'scenarios') { renderScenarioList(); renderScenarioDiff(); }
-}
-window.showTab = showTab;
-
 // --- Padel Calculation ---
 window.calculatePadel = function() {
   const errors = validateInputs(padelInputIds);
@@ -89,6 +71,21 @@ window.calculatePadel = function() {
     ['padelAddStaff', 'padelAddStaffSal'],
   ]);
   const netProfit = totalRevenue - totalOpCosts - totalStaffCost;
+  // Utilization breakdown
+  const peakAvailable = peakHours * peakDays * peakWeeks;
+  const peakUtilized = peakAvailable * peakUtil;
+  const offAvailable = offHours * peakDays * peakWeeks;
+  const offUtilized = offAvailable * offUtil;
+  const utilBreakdown = `
+  <h4>Utilization Breakdown (per court)</h4>
+  <ul>
+    <li>Peak: ${peakHours}h/day × ${peakDays}d/week × ${peakWeeks}w/year = <b>${peakAvailable}</b> hours available</li>
+    <li>Peak Utilized: <b>${peakUtilized.toFixed(1)}</b> hours/year (${(peakUtil*100).toFixed(1)}% utilization)</li>
+    <li>Off-Peak: ${offHours}h/day × ${peakDays}d/week × ${peakWeeks}w/year = <b>${offAvailable}</b> hours available</li>
+    <li>Off-Peak Utilized: <b>${offUtilized.toFixed(1)}</b> hours/year (${(offUtil*100).toFixed(1)}% utilization)</li>
+    <li>Total Utilized (all courts): <b>${((peakUtilized + offUtilized) * courts).toFixed(1)}</b> hours/year</li>
+  </ul>
+  `;
   window.padelData = {
     revenue: totalRevenue,
     costs: totalOpCosts + totalStaffCost,
@@ -103,6 +100,7 @@ window.calculatePadel = function() {
     <p><b>Operational Costs:</b> €${totalOpCosts.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     <p><b>Staff Costs:</b> €${totalStaffCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     <p><b>Net Profit:</b> €${netProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+    ${utilBreakdown}
   `;
   updatePnL();
   updateROI();
@@ -123,6 +121,7 @@ window.calculateGym = function() {
     ['gymAddStaff', 'gymAddStaffSal'],
   ]);
   let adjustedAnnualRevenue = totalAnnualRevenue;
+  let rampSummary = "";
   if (document.getElementById('gymRamp').checked) {
     const rampDuration = getNumberInputValue('rampDuration');
     const rampEffect = getNumberInputValue('rampEffect') / 100;
@@ -135,6 +134,7 @@ window.calculateGym = function() {
       }
     }
     adjustedAnnualRevenue = totalRev;
+    rampSummary = `<p><b>Ramp-up:</b> First ${rampDuration} months at ${getNumberInputValue('rampEffect')}% revenue</p>`;
   }
   const netProfit = adjustedAnnualRevenue - totalOpCosts - totalStaffCost;
   window.gymData = {
@@ -151,6 +151,7 @@ window.calculateGym = function() {
     <p><b>Operational Costs:</b> €${totalOpCosts.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     <p><b>Staff Costs:</b> €${totalStaffCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     <p><b>Net Profit:</b> €${netProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+    ${rampSummary}
   `;
   updatePnL();
   updateROI();
@@ -394,8 +395,6 @@ window.updateROI = updateROI;
 // --- Tornado Chart (Sensitivity Analysis) ---
 function drawTornadoChart() {
   // Key vars: utilization, rates, salaries for both gym/padel
-  const basePadel = window.padelData || { revenue: 0, costs: 0, profit: 0 };
-  const baseGym = window.gymData || { revenue: 0, costs: 0, profit: 0 };
   const keyVars = [
     { label: 'Padel Utilization', id: 'padelPeakUtil', base: getNumberInputValue('padelPeakUtil') },
     { label: 'Padel Fee', id: 'padelPeakRate', base: getNumberInputValue('padelPeakRate') },
@@ -574,32 +573,99 @@ window.exportExcel = function() {
   XLSX.writeFile(wb, "Investment_Breakdown.xlsx");
 };
 
-// --- Gantt Chart ---
+// ------- Interactive Gantt: Add/Edit/Remove tasks, save in localStorage -------
+let ganttTasks = [];
+const ganttKey = 'userGanttTasks';
+function loadGanttTasks() {
+  const saved = localStorage.getItem(ganttKey);
+  if (saved) {
+    ganttTasks = JSON.parse(saved);
+  } else {
+    ganttTasks = [
+      { id: '1', name: 'Feasibility Study & Business Plan', start: '2025-01-01', end: '2025-01-21', progress: 100 },
+      { id: '2', name: 'Site Selection & Acquisition', start: '2025-01-22', end: '2025-02-15', progress: 100 },
+      { id: '3', name: 'Planning & Permits', start: '2025-02-16', end: '2025-03-10', progress: 80 },
+      { id: '4', name: 'Design & Engineering', start: '2025-02-20', end: '2025-03-25', progress: 60 }
+    ];
+  }
+}
+function saveGanttTasks() {
+  localStorage.setItem(ganttKey, JSON.stringify(ganttTasks));
+}
+function renderGanttTaskList() {
+  const div = document.getElementById('ganttTaskList');
+  if (!ganttTasks.length) {
+    div.innerHTML = '<em>No tasks. Add one above!</em>';
+    return;
+  }
+  let html = '<table><tr><th>Name</th><th>Start</th><th>End</th><th>Progress</th><th></th></tr>';
+  ganttTasks.forEach(task => {
+    html += `<tr>
+      <td>${task.name}</td>
+      <td>${task.start}</td>
+      <td>${task.end}</td>
+      <td>${task.progress}%</td>
+      <td>
+        <button type="button" onclick="editGanttTask('${task.id}')">Edit</button>
+        <button type="button" onclick="deleteGanttTask('${task.id}')">Delete</button>
+      </td>
+    </tr>`;
+  });
+  html += '</table>';
+  div.innerHTML = html;
+}
+window.editGanttTask = function(id) {
+  const t = ganttTasks.find(t => t.id === id);
+  if (t) {
+    document.getElementById('ganttEditId').value = t.id;
+    document.getElementById('ganttTaskName').value = t.name;
+    document.getElementById('ganttTaskStart').value = t.start;
+    document.getElementById('ganttTaskEnd').value = t.end;
+    document.getElementById('ganttTaskProgress').value = t.progress;
+  }
+};
+window.deleteGanttTask = function(id) {
+  ganttTasks = ganttTasks.filter(t => t.id !== id);
+  saveGanttTasks();
+  renderGanttTaskList();
+  drawGantt();
+};
+document.getElementById('ganttTaskForm').onsubmit = function(e) {
+  e.preventDefault();
+  const id = document.getElementById('ganttEditId').value || Date.now().toString();
+  const name = document.getElementById('ganttTaskName').value;
+  const start = document.getElementById('ganttTaskStart').value;
+  const end = document.getElementById('ganttTaskEnd').value;
+  const progress = Number(document.getElementById('ganttTaskProgress').value);
+  const idx = ganttTasks.findIndex(t => t.id === id);
+  if (idx >= 0) {
+    ganttTasks[idx] = { id, name, start, end, progress };
+  } else {
+    ganttTasks.push({ id, name, start, end, progress });
+  }
+  saveGanttTasks();
+  renderGanttTaskList();
+  drawGantt();
+  this.reset();
+};
+document.getElementById('ganttTaskResetBtn').onclick = function() {
+  document.getElementById('ganttEditId').value = '';
+  document.getElementById('ganttTaskForm').reset();
+};
 function drawGantt() {
-  const tasks = [
-    { id: '1', name: 'Feasibility Study & Business Plan', start: '2025-01-01', end: '2025-01-21', progress: 100 },
-    { id: '2', name: 'Site Selection & Acquisition', start: '2025-01-22', end: '2025-02-15', progress: 100 },
-    { id: '3', name: 'Planning & Permits', start: '2025-02-16', end: '2025-03-10', progress: 80 },
-    { id: '4', name: 'Design & Engineering', start: '2025-02-20', end: '2025-03-25', progress: 60 },
-    { id: '5', name: 'Groundworks', start: '2025-03-26', end: '2025-04-20', progress: 0 },
-    { id: '6', name: 'Padel Structure Construction', start: '2025-04-21', end: '2025-05-15', progress: 0 },
-    { id: '7', name: 'Court Installation', start: '2025-05-16', end: '2025-06-05', progress: 0 },
-    { id: '8', name: 'Gym Fit-Out', start: '2025-06-06', end: '2025-06-25', progress: 0 },
-    { id: '9', name: 'Amenities & Facilities Install', start: '2025-06-08', end: '2025-07-01', progress: 0 },
-    { id: '10', name: 'Staff Recruitment & Training', start: '2025-06-15', end: '2025-07-05', progress: 0 },
-    { id: '11', name: 'Marketing & Pre-Opening Campaign', start: '2025-06-20', end: '2025-07-10', progress: 0 },
-    { id: '12', name: 'Soft Opening', start: '2025-07-11', end: '2025-07-15', progress: 0 },
-    { id: '13', name: 'Full Operations Launch', start: '2025-07-20', end: '2025-07-20', progress: 0 }
-  ];
+  loadGanttTasks();
   const ganttContainer = document.getElementById('ganttContainer');
   ganttContainer.innerHTML = "";
   const ganttDiv = document.createElement('div');
   ganttDiv.id = "ganttChartDiv";
   ganttContainer.appendChild(ganttDiv);
-  new Gantt("#ganttChartDiv", tasks, { view_mode: 'Month' });
+  if (ganttTasks.length > 0) {
+    new Gantt("#ganttChartDiv", ganttTasks, { view_mode: 'Month' });
+  }
 }
 
-// --- Initialization ---
+// --- Tab Navigation & Initialization ---
+window.showTab = showTab;
 window.onload = function () {
   document.querySelectorAll('nav.tabs button').forEach(btn => {
     btn.addEventListener('click', function () {
@@ -611,6 +677,10 @@ window.onload = function () {
   document.getElementById('calculateGymBtn')?.addEventListener('click', calculateGym);
   document.getElementById('includeGym')?.addEventListener('change', updatePnL);
   document.getElementById('includeGymROI')?.addEventListener('change', updateROI);
+  document.getElementById('ganttTaskResetBtn')?.addEventListener('click', function() {
+    document.getElementById('ganttEditId').value = '';
+    document.getElementById('ganttTaskForm').reset();
+  });
   calculatePadel();
   calculateGym();
   renderScenarioList();

@@ -707,7 +707,7 @@ window.onload = function () {
       showTab(this.dataset.tab || this.getAttribute('aria-controls'));
     });
   });
-  showTab('padel');
+  showTab('padel'); // default tab
   document.getElementById('calculatePadelBtn')?.addEventListener('click', calculatePadel);
   document.getElementById('calculateGymBtn')?.addEventListener('click', calculateGym);
   document.getElementById('includeGym')?.addEventListener('change', updatePnL);

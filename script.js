@@ -43,7 +43,10 @@ function calculateStaffCosts(ids) {
   }, 0);
 }
 let pnlChart, profitTrendChart, costPieChart, roiLineChart, roiBarChart, roiPieChart, roiBreakEvenChart, tornadoChart;
-window.showTab = function(tabId) {
+
+function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+
+function showTab(tabId) {
   document.querySelectorAll('.tab-content').forEach(sec => {
     sec.classList.toggle('hidden', sec.id !== tabId);
   });
@@ -55,8 +58,9 @@ window.showTab = function(tabId) {
   if (tabId === 'summary') generateSummaryReport();
   if (tabId === 'gantt') drawGantt();
   if (tabId === 'scenarios') { renderScenarioList(); renderScenarioDiff(); }
-};
-function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
+}
+window.showTab = showTab;
+
 window.calculatePadel = function() {
   const errors = validateInputs(padelInputIds);
   if (errors.length) { alert(errors.join('\n')); return; }
@@ -584,5 +588,4 @@ window.onload = () => {
   calculateGym();
   renderScenarioList();
   renderScenarioDiff();
-};
 };

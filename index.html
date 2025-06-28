@@ -12,8 +12,6 @@
   <script src="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.2/dist/frappe-gantt.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.2/dist/frappe-gantt.css"/>
   <script src="script.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.2/dist/frappe-gantt.min.js"></script>
-<script src="script.js"></script>
 </head>
 <body>
   <header>
@@ -21,193 +19,135 @@
     <h1>Padel Club Investment Planner</h1>
   </header>
   <nav class="tabs" role="tablist">
-    <button onclick="showTab('padel')" id="btnPadel" class="active" role="tab" aria-controls="padel">Padel</button>
-    <button onclick="showTab('gym')" id="btnGym" role="tab" aria-controls="gym">Gym</button>
-    <button onclick="showTab('pnl')" id="btnPnL" role="tab" aria-controls="pnl">Profit &amp; Loss</button>
-    <button onclick="showTab('roi')" id="btnROI" role="tab" aria-controls="roi">ROI</button>
-    <button onclick="showTab('scenarios')" id="btnScenarios" role="tab" aria-controls="scenarios">Scenarios</button>
-    <button onclick="showTab('summary')" id="btnSummary" role="tab" aria-controls="summary">Summary</button>
-    <button onclick="showTab('gantt')" id="btnGantt" role="tab" aria-controls="gantt">Gantt</button>    
-    <button onclick="window.open('https://aloc23.github.io/pci_project_file_viewer/', '_blank')" role="tab">Files</button>
+    <button type="button" id="btnPadel" data-tab="padel" class="active" aria-controls="padel">Padel</button>
+    <button type="button" id="btnGym" data-tab="gym" aria-controls="gym">Gym</button>
+    <button type="button" id="btnPnl" data-tab="pnl" aria-controls="pnl">P&amp;L</button>
+    <button type="button" id="btnRoi" data-tab="roi" aria-controls="roi">ROI</button>
+    <button type="button" id="btnGantt" data-tab="gantt" aria-controls="gantt">Gantt</button>
+    <button type="button" id="btnSummary" data-tab="summary" aria-controls="summary">Summary</button>
+    <button type="button" id="btnScenarios" data-tab="scenarios" aria-controls="scenarios">Scenarios</button>
   </nav>
   <main>
     <!-- Padel Tab -->
     <section id="padel" class="tab-content">
       <h2>Padel Investment &amp; Revenue</h2>
-      <div class="section-group">
-        <h3>Investment</h3>
-        <label for="padelGround">Groundworks (€)<input type="number" id="padelGround" value="50000" /></label>
-        <label for="padelStructure">Structure (€)<input type="number" id="padelStructure" value="100000" /></label>
-        <label for="padelCourts">Courts<input type="number" id="padelCourts" value="4" /></label>
-        <label for="padelCourtCost">Per Court Cost (€)<input type="number" id="padelCourtCost" value="25000" /></label>
-        <label for="padelAmenities">Amenities (€)<input type="number" id="padelAmenities" value="15000" /></label>
+      <div class="inputs">
+        <label>Ground Cost: <input id="padelGround" type="number" value="50000"></label>
+        <label>Structure Cost: <input id="padelStructure" type="number" value="120000"></label>
+        <label>Number of Courts: <input id="padelCourts" type="number" value="3"></label>
+        <label>Per Court Cost: <input id="padelCourtCost" type="number" value="18000"></label>
+        <label>Amenities: <input id="padelAmenities" type="number" value="20000"></label>
+        <br>
+        <label>Peak Hours/Day: <input id="padelPeakHours" type="number" value="4"></label>
+        <label>Peak Rate: <input id="padelPeakRate" type="number" value="40"></label>
+        <label>Peak Utilization (%): <input id="padelPeakUtil" type="number" value="70"></label>
+        <label>Off Hours/Day: <input id="padelOffHours" type="number" value="2"></label>
+        <label>Off Rate: <input id="padelOffRate" type="number" value="25"></label>
+        <label>Off Utilization (%): <input id="padelOffUtil" type="number" value="35"></label>
+        <label>Days/Week: <input id="padelDays" type="number" value="7"></label>
+        <label>Weeks/Year: <input id="padelWeeks" type="number" value="52"></label>
+        <label>Utilities/year: <input id="padelUtil" type="number" value="5000"></label>
+        <label>Insurance/year: <input id="padelInsure" type="number" value="2500"></label>
+        <label>Maintenance/year: <input id="padelMaint" type="number" value="3000"></label>
+        <label>Marketing/year: <input id="padelMarket" type="number" value="4000"></label>
+        <label>Admin/year: <input id="padelAdmin" type="number" value="3500"></label>
+        <label>Cleaning/year: <input id="padelClean" type="number" value="2000"></label>
+        <label>Misc/year: <input id="padelMisc" type="number" value="1000"></label>
+        <br>
+        <label>Full-time Manager: <input id="padelFtMgr" type="number" value="1"></label>
+        <label>FT Mgr Salary: <input id="padelFtMgrSal" type="number" value="35000"></label>
+        <label>Full-time Reception: <input id="padelFtRec" type="number" value="1"></label>
+        <label>FT Rec Salary: <input id="padelFtRecSal" type="number" value="21000"></label>
+        <label>Full-time Coach: <input id="padelFtCoach" type="number" value="1"></label>
+        <label>FT Coach Salary: <input id="padelFtCoachSal" type="number" value="25000"></label>
+        <label>Part-time Coach: <input id="padelPtCoach" type="number" value="1"></label>
+        <label>PT Coach Salary: <input id="padelPtCoachSal" type="number" value="12000"></label>
+        <label>Additional Staff: <input id="padelAddStaff" type="number" value="0"></label>
+        <label>Add Staff Salary: <input id="padelAddStaffSal" type="number" value="0"></label>
       </div>
-      <div class="section-group">
-        <h3>Utilisation &amp; Revenue</h3>
-        <label for="padelPeakHours">Peak Hours/Day<input type="range" id="padelPeakHours" min="0" max="10" value="5" oninput="document.getElementById('padelPeakHoursLabel').textContent=this.value;calculatePadel();" /><span id="padelPeakHoursLabel">5</span></label>
-        <label for="padelPeakRate">Peak Hourly Rate (€)<input type="range" id="padelPeakRate" min="0" max="100" value="40" oninput="document.getElementById('padelPeakRateLabel').textContent=this.value;calculatePadel();" /><span id="padelPeakRateLabel">40</span></label>
-        <label for="padelPeakUtil">Peak Utilization %<input type="range" id="padelPeakUtil" min="0" max="100" value="85" oninput="document.getElementById('padelPeakUtilLabel').textContent=this.value+'%';calculatePadel();" /><span id="padelPeakUtilLabel">85%</span></label>
-        <label for="padelOffHours">Off-Peak Hours/Day<input type="range" id="padelOffHours" min="0" max="10" value="3" oninput="document.getElementById('padelOffHoursLabel').textContent=this.value;calculatePadel();" /><span id="padelOffHoursLabel">3</span></label>
-        <label for="padelOffRate">Off-Peak Hourly Rate (€)<input type="range" id="padelOffRate" min="0" max="100" value="25" oninput="document.getElementById('padelOffRateLabel').textContent=this.value;calculatePadel();" /><span id="padelOffRateLabel">25</span></label>
-        <label for="padelOffUtil">Off-Peak Utilization %<input type="range" id="padelOffUtil" min="0" max="100" value="50" oninput="document.getElementById('padelOffUtilLabel').textContent=this.value+'%';calculatePadel();" /><span id="padelOffUtilLabel">50%</span></label>
-        <label for="padelDays">Days/Week<input type="range" id="padelDays" min="1" max="7" value="7" oninput="document.getElementById('padelDaysLabel').textContent=this.value;calculatePadel();" /><span id="padelDaysLabel">7</span></label>
-        <label for="padelWeeks">Weeks/Year<input type="range" id="padelWeeks" min="1" max="52" value="52" oninput="document.getElementById('padelWeeksLabel').textContent=this.value;calculatePadel();" /><span id="padelWeeksLabel">52</span></label>
-      </div>
-      <div class="section-group">
-        <h3>Operational Costs</h3>
-        <label for="padelUtil">Utilities (€)<input type="number" id="padelUtil" value="10000" oninput="calculatePadel()" /></label>
-        <label for="padelInsure">Insurance (€)<input type="number" id="padelInsure" value="5000" oninput="calculatePadel()" /></label>
-        <label for="padelMaint">Maintenance (€)<input type="number" id="padelMaint" value="12000" oninput="calculatePadel()" /></label>
-        <label for="padelMarket">Marketing (€)<input type="number" id="padelMarket" value="8000" oninput="calculatePadel()" /></label>
-        <label for="padelAdmin">Admin (€)<input type="number" id="padelAdmin" value="6000" oninput="calculatePadel()" /></label>
-        <label for="padelClean">Cleaning (€)<input type="number" id="padelClean" value="7000" oninput="calculatePadel()" /></label>
-        <label for="padelMisc">Misc (€)<input type="number" id="padelMisc" value="2000" oninput="calculatePadel()" /></label>
-      </div>
-      <div class="section-group">
-        <h3>Staff</h3>
-        <label for="padelFtMgr">Managers (FT)<input type="number" id="padelFtMgr" value="1" oninput="calculatePadel()" /> x Salary (€)<input type="number" id="padelFtMgrSal" value="48000" oninput="calculatePadel()" /></label>
-        <label for="padelFtRec">Reception (FT)<input type="number" id="padelFtRec" value="1" oninput="calculatePadel()" /> x Salary (€)<input type="number" id="padelFtRecSal" value="28000" oninput="calculatePadel()" /></label>
-        <label for="padelFtCoach">Coaches (FT)<input type="number" id="padelFtCoach" value="2" oninput="calculatePadel()" /> x Salary (€)<input type="number" id="padelFtCoachSal" value="25980" oninput="calculatePadel()" /></label>
-        <label for="padelPtCoach">Coaches (PT)<input type="number" id="padelPtCoach" value="1" oninput="calculatePadel()" /> x Salary (€)<input type="number" id="padelPtCoachSal" value="15588" oninput="calculatePadel()" /></label>
-        <label for="padelAddStaff">Additional Staff<input type="number" id="padelAddStaff" value="0" oninput="calculatePadel()" /> x Salary (€)<input type="number" id="padelAddStaffSal" value="30000" oninput="calculatePadel()" /></label>
-      </div>
-      <button onclick="calculatePadel()" id="calculatePadelBtn">Calculate Padel</button>
-      <div id="padelSummary" class="summary" aria-live="polite"></div>
+      <div id="padelSummary"></div>
+      <button id="calculatePadelBtn">Calculate Padel</button>
     </section>
-
     <!-- Gym Tab -->
     <section id="gym" class="tab-content hidden">
       <h2>Gym Investment &amp; Revenue</h2>
-      <div class="section-group">
-        <h3>Investment</h3>
-        <label for="gymEquip">Equipment (€)<input type="number" id="gymEquip" value="75000" oninput="calculateGym()" /></label>
-        <label for="gymFloor">Flooring (€)<input type="number" id="gymFloor" value="25000" oninput="calculateGym()" /></label>
-        <label for="gymAmen">Amenities (€)<input type="number" id="gymAmen" value="10000" oninput="calculateGym()" /></label>
+      <div class="inputs">
+        <label>Equipment: <input id="gymEquip" type="number" value="35000"></label>
+        <label>Flooring: <input id="gymFloor" type="number" value="12000"></label>
+        <label>Amenities: <input id="gymAmen" type="number" value="8000"></label>
+        <br>
+        <label>Weekly Members: <input id="gymWeekMembers" type="number" value="30"></label>
+        <label>Weekly Fee: <input id="gymWeekFee" type="number" value="25"></label>
+        <label>Monthly Members: <input id="gymMonthMembers" type="number" value="20"></label>
+        <label>Monthly Fee: <input id="gymMonthFee" type="number" value="60"></label>
+        <label>Annual Members: <input id="gymAnnualMembers" type="number" value="10"></label>
+        <label>Annual Fee: <input id="gymAnnualFee" type="number" value="500"></label>
+        <label>Utilities/year: <input id="gymUtil" type="number" value="3000"></label>
+        <label>Insurance/year: <input id="gymInsure" type="number" value="1800"></label>
+        <label>Maintenance/year: <input id="gymMaint" type="number" value="2500"></label>
+        <label>Marketing/year: <input id="gymMarket" type="number" value="3000"></label>
+        <label>Admin/year: <input id="gymAdmin" type="number" value="2000"></label>
+        <label>Cleaning/year: <input id="gymClean" type="number" value="1500"></label>
+        <label>Misc/year: <input id="gymMisc" type="number" value="1000"></label>
+        <br>
+        <label>Full-time Trainer: <input id="gymFtTrainer" type="number" value="1"></label>
+        <label>FT Trainer Salary: <input id="gymFtTrainerSal" type="number" value="22000"></label>
+        <label>Part-time Trainer: <input id="gymPtTrainer" type="number" value="1"></label>
+        <label>PT Trainer Salary: <input id="gymPtTrainerSal" type="number" value="9000"></label>
+        <label>Additional Staff: <input id="gymAddStaff" type="number" value="0"></label>
+        <label>Add Staff Salary: <input id="gymAddStaffSal" type="number" value="0"></label>
+        <label><input type="checkbox" id="gymRamp"> Use Ramp-up</label>
+        <label>Ramp Months: <input id="rampDuration" type="number" value="3" min="1" max="12"></label>
+        <label>Ramp Effect (%): <input id="rampEffect" type="number" value="50" min="0" max="100"></label>
       </div>
-      <div class="section-group">
-        <h3>Revenue</h3>
-        <label for="gymWeekMembers">Weekly Members<input type="number" id="gymWeekMembers" value="0" oninput="calculateGym()" /></label>
-        <label for="gymWeekFee">Weekly Fee (€)<input type="number" id="gymWeekFee" value="0" oninput="calculateGym()" /></label>
-        <label for="gymMonthMembers">Monthly Members<input type="number" id="gymMonthMembers" value="0" oninput="calculateGym()" /></label>
-        <label for="gymMonthFee">Monthly Fee (€)<input type="number" id="gymMonthFee" value="0" oninput="calculateGym()" /></label>
-        <label for="gymAnnualMembers">Annual Members<input type="number" id="gymAnnualMembers" value="0" oninput="calculateGym()" /></label>
-        <label for="gymAnnualFee">Annual Fee (€)<input type="number" id="gymAnnualFee" value="0" oninput="calculateGym()" /></label>
-        <label><input type="checkbox" id="gymRamp" onchange="calculateGym()" /> Apply Ramp-Up?</label>
-        <label for="rampDuration">Ramp-Up Duration (months):
-          <input type="range" id="rampDuration" min="1" max="12" value="6" oninput="updateRampDurationLabel(this.value);calculateGym();" />
-          <span id="rampDurationLabel">6</span>
-        </label>
-        <label for="rampEffect">Ramp-Up Effectiveness (%):
-          <input type="range" id="rampEffect" min="50" max="100" value="70" oninput="updateRampEffectLabel(this.value);calculateGym();" />
-          <span id="rampEffectLabel">70%</span>
-        </label>
-      </div>
-      <div class="section-group">
-        <h3>Operational Costs</h3>
-        <label for="gymUtil">Utilities (€)<input type="number" id="gymUtil" value="12000" oninput="calculateGym()" /></label>
-        <label for="gymInsure">Insurance (€)<input type="number" id="gymInsure" value="4000" oninput="calculateGym()" /></label>
-        <label for="gymMaint">Maintenance (€)<input type="number" id="gymMaint" value="15000" oninput="calculateGym()" /></label>
-        <label for="gymMarket">Marketing (€)<input type="number" id="gymMarket" value="7000" oninput="calculateGym()" /></label>
-        <label for="gymAdmin">Admin (€)<input type="number" id="gymAdmin" value="6000" oninput="calculateGym()" /></label>
-        <label for="gymClean">Cleaning (€)<input type="number" id="gymClean" value="5000" oninput="calculateGym()" /></label>
-        <label for="gymMisc">Misc (€)<input type="number" id="gymMisc" value="2500" oninput="calculateGym()" /></label>
-      </div>
-      <div class="section-group">
-        <h3>Staff</h3>
-        <label for="gymFtTrainer">Trainers (FT)<input type="number" id="gymFtTrainer" value="1" oninput="calculateGym()" /> x Salary (€)<input type="number" id="gymFtTrainerSal" value="32000" oninput="calculateGym()" /></label>
-        <label for="gymPtTrainer">Trainers (PT)<input type="number" id="gymPtTrainer" value="1" oninput="calculateGym()" /> x Salary (€)<input type="number" id="gymPtTrainerSal" value="11691" oninput="calculateGym()" /></label>
-        <label for="gymAddStaff">Additional Staff<input type="number" id="gymAddStaff" value="0" oninput="calculateGym()" /> x Salary (€)<input type="number" id="gymAddStaffSal" value="30000" oninput="calculateGym()" /></label>
-      </div>
-      <button onclick="calculateGym()" id="calculateGymBtn">Calculate Gym</button>
-      <div id="gymSummary" class="summary" aria-live="polite"></div>
+      <div id="gymSummary"></div>
+      <button id="calculateGymBtn">Calculate Gym</button>
     </section>
-
-    <!-- Profit & Loss Tab -->
+    <!-- PnL Tab -->
     <section id="pnl" class="tab-content hidden">
       <h2>Profit &amp; Loss</h2>
-      <label>
-        <input type="radio" name="pl_toggle" value="annual" checked onchange="updatePnL()" /> Annual
-        <input type="radio" name="pl_toggle" value="monthly" onchange="updatePnL()" /> Monthly
-      </label>
-      <div id="pnlSummary" class="summary" aria-live="polite"></div>
-      <canvas id="pnlChart" style="max-height: 300px;"></canvas>
-      <canvas id="profitTrendChart" style="max-height: 250px; margin-top: 2rem;"></canvas>
-      <canvas id="costPieChart" style="max-height: 250px; margin-top: 2rem;"></canvas>
-      <details style="margin-top: 1rem;">
-        <summary>Monthly Breakdown</summary>
-        <table id="monthlyBreakdown" class="breakdown-table">
-          <thead>
-            <tr><th>Month</th><th>Revenue</th><th>Costs</th><th>Profit</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </details>
-      <details style="margin-top: 1rem;">
-        <summary>Monthly Cash Flow</summary>
-        <table id="cashFlowTable" class="breakdown-table">
-          <thead>
-            <tr><th>Month</th><th>Opening Balance</th><th>Cash In</th><th>Cash Out</th><th>Closing Balance</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </details>
+      <div id="pnlSummary"></div>
+      <table id="monthlyBreakdown"><thead><tr><th>Month</th><th>Revenue</th><th>Costs</th><th>Profit</th></tr></thead><tbody></tbody></table>
+      <table id="cashFlowTable"><thead><tr><th>Month</th><th>Opening</th><th>Inflow</th><th>Outflow</th><th>Closing</th></tr></thead><tbody></tbody></table>
+      <canvas id="pnlChart" height="150"></canvas>
+      <canvas id="profitTrendChart" height="150"></canvas>
+      <canvas id="costPieChart" height="150"></canvas>
     </section>
-
     <!-- ROI Tab -->
     <section id="roi" class="tab-content hidden">
-      <h2>Return on Investment</h2>
-      <div id="yearsToROIText" class="roi-summary"></div>
-      <div class="roi-controls">
-        <label for="roiRevAdjust">Revenue Adjustment (%)
-          <input type="range" id="roiRevAdjust" min="80" max="120" value="100" oninput="updateROIAdjustmentLabel(this.value)" />
-          <span id="roiRevAdjustLabel">100%</span>
-        </label>
-        <label for="roiCostAdjust">Cost Adjustment (%)
-          <input type="range" id="roiCostAdjust" min="80" max="120" value="100" oninput="updateROIAdjustmentLabel(this.value)" />
-          <span id="roiCostAdjustLabel">100%</span>
-        </label>
-      </div>
-      <canvas id="roiLineChart" style="max-height: 250px; margin-top: 1rem;"></canvas>
-      <canvas id="roiBarChart" style="max-height: 250px; margin-top: 1rem;"></canvas>
-      <canvas id="roiPieChart" style="max-height: 250px; margin-top: 1rem;"></canvas>
-      <canvas id="roiBreakEvenChart" style="max-height: 250px; margin-top: 1rem;"></canvas>
-      <details style="margin-top: 1rem;">
-        <summary>Payback Period Table</summary>
-        <table id="paybackTable" class="breakdown-table">
-          <thead><tr><th>Year</th><th>Cumulative Profit (€)</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </details>
-      <div id="roiKPIs" class="summary"></div>
-      <h3>Tornado Sensitivity Chart</h3>
-      <canvas id="tornadoChart" style="max-height: 300px;"></canvas>
+      <h2>ROI</h2>
+      <div id="yearsToROIText"></div>
+      <div id="roiKPIs"></div>
+      <table id="paybackTable"><thead><tr><th>Year</th><th>Cumulative Profit</th></tr></thead><tbody></tbody></table>
+      <canvas id="roiLineChart" height="150"></canvas>
+      <canvas id="roiBarChart" height="150"></canvas>
+      <canvas id="roiPieChart" height="150"></canvas>
+      <canvas id="roiBreakEvenChart" height="150"></canvas>
+      <canvas id="tornadoChart" height="150"></canvas>
     </section>
-
+    <!-- Gantt Tab -->
+    <section id="gantt" class="tab-content hidden">
+      <h2>Project Timeline (Gantt)</h2>
+      <div id="ganttContainer"></div>
+    </section>
+    <!-- Summary Tab -->
+    <section id="summary" class="tab-content hidden">
+      <h2>Summary Report</h2>
+      <div id="reportContent"></div>
+      <button onclick="exportPDF()">Export as PDF</button>
+      <button onclick="exportExcel()">Export as Excel</button>
+      <canvas id="summaryPnL" height="150"></canvas>
+      <canvas id="summaryROI" height="150"></canvas>
+    </section>
     <!-- Scenarios Tab -->
     <section id="scenarios" class="tab-content hidden">
       <h2>Scenarios</h2>
       <form id="scenarioForm">
         <input type="text" id="scenarioName" placeholder="Scenario name" required />
-        <button type="submit">Save Current Scenario</button>
+        <button type="submit">Save Scenario</button>
       </form>
       <div id="scenarioList"></div>
       <div id="scenarioDiffContainer"></div>
-    </section>
-
-    <!-- Summary Report Tab -->
-    <section id="summary" class="tab-content hidden">
-      <h2>Summary Report</h2>
-      <button onclick="exportPDF()">Export as PDF</button>
-      <button onclick="exportExcel()">Export as Excel</button>
-      <div id="reportContent">
-        <!-- Populated by JS -->
-      </div>
-    </section>
-
-    <!-- Gantt Tab -->
-    <section id="gantt" class="tab-content hidden">
-      <h2>Project Timeline (Gantt)</h2>
-      <div id="ganttContainer"></div>
     </section>
   </main>
   <script>

@@ -105,6 +105,8 @@ window.calculatePadel = function() {
   updatePnL();
   updateROI();
 };
+
+};
   const netProfit = totalRevenue - totalOpCosts - totalStaffCost;
   // Utilization breakdown
   const peakAvailable = peakHours * peakDays * peakWeeks;

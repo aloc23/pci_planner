@@ -52,6 +52,10 @@ function showTab(tabId) {
   });
   document.querySelectorAll('nav.tabs button').forEach(btn => {
     btn.classList.toggle('active', btn.id === 'btn' + capitalize(tabId));
+    // Scroll the active button into view smoothly
+    if (btn.id === 'btn' + capitalize(tabId)) {
+      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+    }
   });
   if (tabId === 'pnl') updatePnL();
   if (tabId === 'roi') { updateROI(); drawTornadoChart(); }

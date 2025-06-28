@@ -100,36 +100,33 @@
       <div id="padelSummary" class="summary" aria-live="polite"></div>
       <button id="calculatePadelBtn">Calculate Padel</button>
     </section>
-    <!-- Gym Tab -->
+    <!-- GYM TAB -->
     <section id="gym" class="tab-content hidden">
       <h2>Gym Investment &amp; Revenue</h2>
       <div class="section-group">
         <h3>Investment Inputs</h3>
         <label>Equipment: <input id="gymEquip" type="number" value="35000"></label>
-        <label>Flooring: <input id="gymFloor" type="number" value="12000"></label>
-        <label>Amenities: <input id="gymAmen" type="number" value="8000"></label>
+        <label>Flooring: <input id="gymFloor" type="number" value="8000"></label>
+        <label>Amenities: <input id="gymAmen" type="number" value="6000"></label>
       </div>
       <div class="section-group">
-        <h3>Utilization Inputs</h3>
-        <label>Weekly Members: <input id="gymWeekMembers" type="number" value="30"></label>
-        <label>Weekly Fee: <input id="gymWeekFee" type="number" value="25"></label>
-        <label>Monthly Members: <input id="gymMonthMembers" type="number" value="20"></label>
-        <label>Monthly Fee: <input id="gymMonthFee" type="number" value="60"></label>
-        <label>Annual Members: <input id="gymAnnualMembers" type="number" value="10"></label>
-        <label>Annual Fee: <input id="gymAnnualFee" type="number" value="500"></label>
-        <label><input type="checkbox" id="gymRamp"> Use Ramp-up</label>
-        <label>Ramp Months: <input id="rampDuration" type="number" value="3" min="1" max="12"></label>
-        <label>Ramp Effect (%): <input id="rampEffect" type="number" value="50" min="0" max="100"></label>
+        <h3>Revenue Inputs</h3>
+        <label>Weekly Members: <input id="gymWeekMembers" type="number" value="60"></label>
+        <label>Weekly Fee: <input id="gymWeekFee" type="number" value="20"></label>
+        <label>Monthly Members: <input id="gymMonthMembers" type="number" value="30"></label>
+        <label>Monthly Fee: <input id="gymMonthFee" type="number" value="50"></label>
+        <label>Annual Members: <input id="gymAnnualMembers" type="number" value="12"></label>
+        <label>Annual Fee: <input id="gymAnnualFee" type="number" value="450"></label>
       </div>
       <div class="section-group">
         <h3>Operating Costs</h3>
-        <label>Utilities/year: <input id="gymUtil" type="number" value="3000"></label>
-        <label>Insurance/year: <input id="gymInsure" type="number" value="1800"></label>
-        <label>Maintenance/year: <input id="gymMaint" type="number" value="2500"></label>
-        <label>Marketing/year: <input id="gymMarket" type="number" value="3000"></label>
-        <label>Admin/year: <input id="gymAdmin" type="number" value="2000"></label>
-        <label>Cleaning/year: <input id="gymClean" type="number" value="1500"></label>
-        <label>Misc/year: <input id="gymMisc" type="number" value="1000"></label>
+        <label>Utilities/year: <input id="gymUtil" type="number" value="2500"></label>
+        <label>Insurance/year: <input id="gymInsure" type="number" value="1700"></label>
+        <label>Maintenance/year: <input id="gymMaint" type="number" value="2000"></label>
+        <label>Marketing/year: <input id="gymMarket" type="number" value="2500"></label>
+        <label>Admin/year: <input id="gymAdmin" type="number" value="2100"></label>
+        <label>Cleaning/year: <input id="gymClean" type="number" value="1200"></label>
+        <label>Misc/year: <input id="gymMisc" type="number" value="800"></label>
       </div>
       <div class="section-group">
         <h3>Staffing</h3>
@@ -140,106 +137,103 @@
         <label>Additional Staff: <input id="gymAddStaff" type="number" value="0"></label>
         <label>Add Staff Salary: <input id="gymAddStaffSal" type="number" value="0"></label>
       </div>
+      <div class="section-group">
+        <h3>Ramp-up</h3>
+        <label>Apply Ramp-Up? <input id="gymRamp" type="checkbox"></label>
+        <label>Ramp Duration (months): <input id="rampDuration" type="range" min="0" max="12" value="3" step="1" oninput="rampDurationLabel.textContent=this.value"><span id="rampDurationLabel">3</span></label>
+        <label>Ramp Effect (%): <input id="rampEffect" type="range" min="0" max="100" value="40" step="1" oninput="rampEffectLabel.textContent=this.value+'%'"><span id="rampEffectLabel">40%</span></label>
+      </div>
       <div id="gymSummary" class="summary" aria-live="polite"></div>
       <button id="calculateGymBtn">Calculate Gym</button>
     </section>
-    <!-- Profit & Loss Tab -->
+    <!-- PNL TAB -->
     <section id="pnl" class="tab-content hidden">
-      <h2>Profit &amp; Loss</h2>
-      <label class="include-gym-toggle">
-        <input type="checkbox" id="includeGym" checked>
-        Include Gym in calculations
-      </label>
-      <div id="pnlSummary" class="summary" aria-live="polite"></div>
-      <canvas id="pnlChart"></canvas>
-      <canvas id="profitTrendChart"></canvas>
-      <canvas id="costPieChart"></canvas>
-      <details>
-        <summary>Monthly Breakdown</summary>
-        <table id="monthlyBreakdown" class="breakdown-table">
-          <thead>
-            <tr><th>Month</th><th>Revenue</th><th>Costs</th><th>Profit</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </details>
-      <details>
-        <summary>Monthly Cash Flow</summary>
-        <table id="cashFlowTable" class="breakdown-table">
-          <thead>
-            <tr><th>Month</th><th>Opening Balance</th><th>Cash In</th><th>Cash Out</th><th>Closing Balance</th></tr>
-          </thead>
-          <tbody></tbody>
-        </table>
-      </details>
-    </section>
-    <!-- ROI Tab -->
-    <section id="roi" class="tab-content hidden">
-      <h2>Return on Investment</h2>
-      <label class="include-gym-toggle">
-        <input type="checkbox" id="includeGymROI" checked>
-        Include Gym in calculations
-      </label>
-      <div id="yearsToROIText" class="roi-summary"></div>
-      <div class="roi-controls">
-        <label for="roiRevAdjust">Revenue Adjustment (%)
-          <input type="range" id="roiRevAdjust" min="80" max="120" value="100" oninput="updateROIAdjustmentLabel(this.value)" />
-          <span id="roiRevAdjustLabel">100%</span>
-        </label>
-        <label for="roiCostAdjust">Cost Adjustment (%)
-          <input type="range" id="roiCostAdjust" min="80" max="120" value="100" oninput="updateROIAdjustmentLabel(this.value)" />
-          <span id="roiCostAdjustLabel">100%</span>
-        </label>
+      <h2>Profit &amp; Loss Statement</h2>
+      <div class="section-group">
+        <label><input type="checkbox" id="includeGym" checked> Include Gym in PnL</label>
       </div>
-      <canvas id="roiLineChart"></canvas>
-      <canvas id="roiBarChart"></canvas>
-      <canvas id="roiPieChart"></canvas>
-      <canvas id="roiBreakEvenChart"></canvas>
-      <details>
-        <summary>Payback Period Table</summary>
-        <table id="paybackTable" class="breakdown-table">
-          <thead><tr><th>Year</th><th>Cumulative Profit (€)</th></tr></thead>
+      <div id="pnlSummary" class="summary"></div>
+      <div class="section-group">
+        <h3>Monthly Breakdown</h3>
+        <table id="monthlyBreakdown">
+          <thead><tr><th>Month</th><th>Revenue</th><th>Costs</th><th>Profit</th></tr></thead>
           <tbody></tbody>
         </table>
-      </details>
-      <div id="roiKPIs" class="summary"></div>
-      <h3>Tornado Sensitivity Chart</h3>
-      <canvas id="tornadoChart"></canvas>
+      </div>
+      <div class="section-group">
+        <h3>Cash Flow</h3>
+        <table id="cashFlowTable">
+          <thead><tr><th>Month</th><th>Opening</th><th>Inflow</th><th>Outflow</th><th>Closing</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="section-group">
+        <h3>Charts</h3>
+        <div><canvas id="pnlChart" height="180"></canvas></div>
+        <div><canvas id="profitTrendChart" height="180"></canvas></div>
+        <div><canvas id="costPieChart" height="180"></canvas></div>
+      </div>
     </section>
-    <!-- Scenarios Tab -->
+    <!-- ROI TAB -->
+    <section id="roi" class="tab-content hidden">
+      <h2>ROI &amp; Payback</h2>
+      <div class="section-group">
+        <label><input type="checkbox" id="includeGymROI" checked> Include Gym in ROI</label>
+        <label>Revenue Adjust (%): <input id="roiRevAdjust" type="range" min="0" max="150" value="100" step="1" oninput="roiRevAdjustLabel.textContent=this.value+'%';updateROI()"><span id="roiRevAdjustLabel">100%</span></label>
+        <label>Cost Adjust (%): <input id="roiCostAdjust" type="range" min="0" max="200" value="100" step="1" oninput="roiCostAdjustLabel.textContent=this.value+'%';updateROI()"><span id="roiCostAdjustLabel">100%</span></label>
+      </div>
+      <div id="yearsToROIText" class="summary"></div>
+      <div id="roiKPIs" class="summary"></div>
+      <div class="section-group">
+        <h3>Payback Table</h3>
+        <table id="paybackTable">
+          <thead><tr><th>Year</th><th>Cumulative Profit</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </div>
+      <div class="section-group">
+        <h3>Charts</h3>
+        <div><canvas id="roiLineChart" height="180"></canvas></div>
+        <div><canvas id="roiBarChart" height="180"></canvas></div>
+        <div><canvas id="roiPieChart" height="180"></canvas></div>
+        <div><canvas id="roiBreakEvenChart" height="180"></canvas></div>
+      </div>
+      <div class="section-group">
+        <h3>Sensitivity (Tornado Chart)</h3>
+        <div><canvas id="tornadoChart" height="220"></canvas></div>
+      </div>
+    </section>
+    <!-- SCENARIOS TAB -->
     <section id="scenarios" class="tab-content hidden">
       <h2>Scenarios</h2>
       <form id="scenarioForm">
-        <input type="text" id="scenarioName" placeholder="Scenario name" required />
-        <button type="submit">Save Current Scenario</button>
+        <input id="scenarioName" type="text" placeholder="Scenario name" required>
+        <button type="submit">Save Scenario</button>
       </form>
       <div id="scenarioList"></div>
-      <div id="scenarioDiffContainer"></div>
+      <div id="scenarioDiffContainer" class="section-group"></div>
     </section>
-    <!-- Summary Report Tab -->
+    <!-- SUMMARY TAB -->
     <section id="summary" class="tab-content hidden">
       <h2>Summary Report</h2>
-      <button onclick="exportPDF()">Export as PDF</button>
-      <button onclick="exportExcel()">Export as Excel</button>
+      <button onclick="exportPDF()">Export PDF</button>
+      <button onclick="exportExcel()">Export Excel</button>
       <div id="reportContent"></div>
     </section>
-    <!-- Gantt Tab -->
+    <!-- GANTT TAB -->
     <section id="gantt" class="tab-content hidden">
-      <h2>Project Timeline (Gantt)</h2>
-      <p style="color:#888; margin-bottom:1rem;">
-        Edit the timeline below: add, edit, or remove tasks. Changes update instantly.
-      </p>
-      <form id="ganttTaskForm" class="section-group" style="margin-bottom:1rem;">
-        <input type="hidden" id="ganttEditId" value="">
-        <label>Task Name: <input type="text" id="ganttTaskName" required></label>
-        <label>Start Date: <input type="date" id="ganttTaskStart" required></label>
-        <label>End Date: <input type="date" id="ganttTaskEnd" required></label>
-        <label>Progress (%): <input type="number" id="ganttTaskProgress" min="0" max="100" value="0"></label>
-        <button type="submit" id="ganttTaskSaveBtn">Add/Update Task</button>
-        <button type="button" id="ganttTaskResetBtn">Reset Form</button>
+      <h2>Gantt Chart</h2>
+      <form id="ganttTaskForm">
+        <input id="ganttEditId" type="hidden">
+        <label>Task Name: <input id="ganttTaskName" type="text" required></label>
+        <label>Start: <input id="ganttTaskStart" type="date" required></label>
+        <label>End: <input id="ganttTaskEnd" type="date" required></label>
+        <label>Progress (%): <input id="ganttTaskProgress" type="number" min="0" max="100" value="0"></label>
+        <button type="submit">Save</button>
+        <button type="button" id="ganttTaskResetBtn">Reset</button>
       </form>
-      <div id="ganttTaskList" class="section-group"></div>
-      <div id="ganttContainer"></div>
+      <div id="ganttTaskList"></div>
+      <div id="ganttContainer" style="margin-top:1rem"></div>
     </section>
   </main>
 </body>

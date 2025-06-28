@@ -598,16 +598,108 @@ window.exportExcel = function() {
   XLSX.utils.book_append_sheet(wb, ws, "Monthly Breakdown");
   XLSX.writeFile(wb, "Investment_Breakdown.xlsx");
 };
-// Gantt Chart
 function drawGantt() {
+  // Recommended project tasks for a Padel Club
   const tasks = [
-    { id: '1', name: 'Planning', start: '2025-01-01', end: '2025-02-01', progress: 100 },
-    { id: '2', name: 'Permits', start: '2025-02-02', end: '2025-03-01', progress: 100 },
-    { id: '3', name: 'Construction', start: '2025-03-02', end: '2025-06-01', progress: 60 },
-    { id: '4', name: 'Padel Court Install', start: '2025-06-02', end: '2025-07-15', progress: 0 },
-    { id: '5', name: 'Equipment Install', start: '2025-07-16', end: '2025-08-01', progress: 0 },
-    { id: '6', name: 'Ramp-Up', start: '2025-08-02', end: '2025-12-31', progress: 0 }
+    {
+      id: '1',
+      name: 'Feasibility Study & Business Plan',
+      start: '2025-01-01',
+      end: '2025-01-21',
+      progress: 100
+    },
+    {
+      id: '2',
+      name: 'Site Selection & Acquisition',
+      start: '2025-01-22',
+      end: '2025-02-15',
+      progress: 100
+    },
+    {
+      id: '3',
+      name: 'Planning & Permits',
+      start: '2025-02-16',
+      end: '2025-03-10',
+      progress: 80
+    },
+    {
+      id: '4',
+      name: 'Design & Engineering',
+      start: '2025-02-20',
+      end: '2025-03-25',
+      progress: 60
+    },
+    {
+      id: '5',
+      name: 'Groundworks',
+      start: '2025-03-26',
+      end: '2025-04-20',
+      progress: 0
+    },
+    {
+      id: '6',
+      name: 'Padel Structure Construction',
+      start: '2025-04-21',
+      end: '2025-05-15',
+      progress: 0
+    },
+    {
+      id: '7',
+      name: 'Court Installation',
+      start: '2025-05-16',
+      end: '2025-06-05',
+      progress: 0
+    },
+    {
+      id: '8',
+      name: 'Gym Fit-Out',
+      start: '2025-06-06',
+      end: '2025-06-25',
+      progress: 0
+    },
+    {
+      id: '9',
+      name: 'Amenities & Facilities Install',
+      start: '2025-06-08',
+      end: '2025-07-01',
+      progress: 0
+    },
+    {
+      id: '10',
+      name: 'Staff Recruitment & Training',
+      start: '2025-06-15',
+      end: '2025-07-05',
+      progress: 0
+    },
+    {
+      id: '11',
+      name: 'Marketing & Pre-Opening Campaign',
+      start: '2025-06-20',
+      end: '2025-07-10',
+      progress: 0
+    },
+    {
+      id: '12',
+      name: 'Soft Opening',
+      start: '2025-07-11',
+      end: '2025-07-15',
+      progress: 0
+    },
+    {
+      id: '13',
+      name: 'Full Operations Launch',
+      start: '2025-07-20',
+      end: '2025-07-20',
+      progress: 0
+    }
   ];
+  const ganttContainer = document.getElementById('ganttContainer');
+  ganttContainer.innerHTML = "";
+  const ganttDiv = document.createElement('div');
+  ganttDiv.id = "ganttChartDiv";
+  ganttContainer.appendChild(ganttDiv);
+  new Gantt("#ganttChartDiv", tasks, { view_mode: 'Month', custom_popup_html: null });
+}
   // Clear previous content
   const ganttContainer = document.getElementById('ganttContainer');
   ganttContainer.innerHTML = "";

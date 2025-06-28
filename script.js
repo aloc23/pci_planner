@@ -1,4 +1,4 @@
-// Utility functions and variable declarations
+// --- Utility functions and variable declarations ---
 function getNumberInputValue(id) {
   const el = document.getElementById(id);
   const val = el ? Number(el.value) : NaN;
@@ -43,9 +43,9 @@ function calculateStaffCosts(ids) {
   }, 0);
 }
 let pnlChart, profitTrendChart, costPieChart, roiLineChart, roiBarChart, roiPieChart, roiBreakEvenChart, tornadoChart;
-
 function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
 
+// --- Tab Navigation ---
 function showTab(tabId) {
   document.querySelectorAll('.tab-content').forEach(sec => {
     sec.classList.toggle('hidden', sec.id !== tabId);
@@ -61,33 +61,23 @@ function showTab(tabId) {
 }
 window.showTab = showTab;
 
+// --- Padel Calculation ---
 window.calculatePadel = function() {
   const errors = validateInputs(padelInputIds);
   if (errors.length) { alert(errors.join('\n')); return; }
-  // Get values for utilization breakdown
   const peakHours = getNumberInputValue('padelPeakHours');
   const peakDays = getNumberInputValue('padelDays');
   const peakWeeks = getNumberInputValue('padelWeeks');
   const peakUtil = getNumberInputValue('padelPeakUtil') / 100;
-
   const offHours = getNumberInputValue('padelOffHours');
   const offUtil = getNumberInputValue('padelOffUtil') / 100;
-
   const courts = getNumberInputValue('padelCourts');
-
-  // Utilized hours (per court)
-  const peakAvailable = peakHours * peakDays * peakWeeks; // annual per court
+  const peakAvailable = peakHours * peakDays * peakWeeks;
   const peakUtilized = peakAvailable * peakUtil;
   const offAvailable = offHours * peakDays * peakWeeks;
   const offUtilized = offAvailable * offUtil;
-
-  // Revenue/cost/profit calculations
-  const peakAnnualRevenue = peakHours * getNumberInputValue('padelPeakRate') *
-    peakDays * peakWeeks *
-    courts * peakUtil;
-  const offAnnualRevenue = offHours * getNumberInputValue('padelOffRate') *
-    peakDays * peakWeeks *
-    courts * offUtil;
+  const peakAnnualRevenue = peakHours * getNumberInputValue('padelPeakRate') * peakDays * peakWeeks * courts * peakUtil;
+  const offAnnualRevenue = offHours * getNumberInputValue('padelOffRate') * peakDays * peakWeeks * courts * offUtil;
   const totalRevenue = peakAnnualRevenue + offAnnualRevenue;
   const totalOpCosts = calculateOperationCosts('padel');
   const totalStaffCost = calculateStaffCosts([
@@ -106,8 +96,6 @@ window.calculatePadel = function() {
     monthlyCosts: (totalOpCosts + totalStaffCost) / 12,
     monthlyProfit: netProfit / 12,
   };
-
-  // Utilization breakdown HTML
   const utilBreakdown = `
   <h4>Utilization Breakdown (per court)</h4>
   <ul>
@@ -118,7 +106,6 @@ window.calculatePadel = function() {
     <li>Total Utilized (all courts): <b>${((peakUtilized + offUtilized) * courts).toFixed(1)}</b> hours/year</li>
   </ul>
   `;
-
   document.getElementById('padelSummary').innerHTML = `
     <h3>Summary</h3>
     <p><b>Total Revenue:</b> €${totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
@@ -130,6 +117,8 @@ window.calculatePadel = function() {
   updatePnL();
   updateROI();
 };
+
+// --- Gym Calculation ---
 window.calculateGym = function() {
   const errors = validateInputs(gymInputIds);
   if (errors.length) { alert(errors.join('\n')); return; }
@@ -180,6 +169,8 @@ function gymIncluded() {
   const el = document.getElementById('includeGym');
   return el ? el.checked : true;
 }
+
+// --- PnL Calculation and Charts ---
 window.updatePnL = function() {
   const plType = document.querySelector('input[name="pl_toggle"]:checked').value;
   const padel = window.padelData || { revenue: 0, costs: 0, profit: 0, monthlyRevenue: 0, monthlyCosts: 0, monthlyProfit: 0 };
@@ -290,6 +281,8 @@ function getTotalInvestment() {
     getNumberInputValue('gymAmen')
   );
 }
+
+// --- ROI calculations and charts ---
 window.updateROIAdjustmentLabel = function(val) {
   document.getElementById('roiRevAdjustLabel').textContent = `${getNumberInputValue('roiRevAdjust')}%`;
   document.getElementById('roiCostAdjustLabel').textContent = `${getNumberInputValue('roiCostAdjust')}%`;
@@ -458,7 +451,8 @@ function drawTornadoChart() {
     options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false }
   });
 }
-// Scenario Management
+
+// --- Scenario Management ---
 function getScenarioState() {
   const ids = padelInputIds.concat(gymInputIds);
   const state = {};
@@ -531,7 +525,8 @@ document.getElementById('scenarioForm').onsubmit = (e) => {
     document.getElementById('scenarioName').value = '';
   }
 };
-// Summary Report (for PDF/Excel)
+
+// --- Summary Report (for PDF/Excel) ---
 function generateSummaryReport() {
   const padel = window.padelData || {};
   const gym = gymIncluded() && window.gymData ? window.gymData : {};
@@ -580,7 +575,7 @@ function generateSummaryReport() {
     options: { responsive: true, maintainAspectRatio: false }
   });
 }
-// Export as PDF
+// --- Export as PDF ---
 window.exportPDF = function() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
@@ -589,143 +584,61 @@ window.exportPDF = function() {
     x: 10, y: 10
   });
 };
-// Export as Excel
+// --- Export as Excel ---
 window.exportExcel = function() {
   const wb = XLSX.utils.book_new();
-  // Example: exporting monthly breakdown
   const table = document.getElementById('monthlyBreakdown');
   const ws = XLSX.utils.table_to_sheet(table);
   XLSX.utils.book_append_sheet(wb, ws, "Monthly Breakdown");
   XLSX.writeFile(wb, "Investment_Breakdown.xlsx");
 };
+
+// --- Gantt Chart with recommended project tasks ---
 function drawGantt() {
-  // Recommended project tasks for a Padel Club
   const tasks = [
-    {
-      id: '1',
-      name: 'Feasibility Study & Business Plan',
-      start: '2025-01-01',
-      end: '2025-01-21',
-      progress: 100
-    },
-    {
-      id: '2',
-      name: 'Site Selection & Acquisition',
-      start: '2025-01-22',
-      end: '2025-02-15',
-      progress: 100
-    },
-    {
-      id: '3',
-      name: 'Planning & Permits',
-      start: '2025-02-16',
-      end: '2025-03-10',
-      progress: 80
-    },
-    {
-      id: '4',
-      name: 'Design & Engineering',
-      start: '2025-02-20',
-      end: '2025-03-25',
-      progress: 60
-    },
-    {
-      id: '5',
-      name: 'Groundworks',
-      start: '2025-03-26',
-      end: '2025-04-20',
-      progress: 0
-    },
-    {
-      id: '6',
-      name: 'Padel Structure Construction',
-      start: '2025-04-21',
-      end: '2025-05-15',
-      progress: 0
-    },
-    {
-      id: '7',
-      name: 'Court Installation',
-      start: '2025-05-16',
-      end: '2025-06-05',
-      progress: 0
-    },
-    {
-      id: '8',
-      name: 'Gym Fit-Out',
-      start: '2025-06-06',
-      end: '2025-06-25',
-      progress: 0
-    },
-    {
-      id: '9',
-      name: 'Amenities & Facilities Install',
-      start: '2025-06-08',
-      end: '2025-07-01',
-      progress: 0
-    },
-    {
-      id: '10',
-      name: 'Staff Recruitment & Training',
-      start: '2025-06-15',
-      end: '2025-07-05',
-      progress: 0
-    },
-    {
-      id: '11',
-      name: 'Marketing & Pre-Opening Campaign',
-      start: '2025-06-20',
-      end: '2025-07-10',
-      progress: 0
-    },
-    {
-      id: '12',
-      name: 'Soft Opening',
-      start: '2025-07-11',
-      end: '2025-07-15',
-      progress: 0
-    },
-    {
-      id: '13',
-      name: 'Full Operations Launch',
-      start: '2025-07-20',
-      end: '2025-07-20',
-      progress: 0
-    }
+    { id: '1', name: 'Feasibility Study & Business Plan', start: '2025-01-01', end: '2025-01-21', progress: 100 },
+    { id: '2', name: 'Site Selection & Acquisition', start: '2025-01-22', end: '2025-02-15', progress: 100 },
+    { id: '3', name: 'Planning & Permits', start: '2025-02-16', end: '2025-03-10', progress: 80 },
+    { id: '4', name: 'Design & Engineering', start: '2025-02-20', end: '2025-03-25', progress: 60 },
+    { id: '5', name: 'Groundworks', start: '2025-03-26', end: '2025-04-20', progress: 0 },
+    { id: '6', name: 'Padel Structure Construction', start: '2025-04-21', end: '2025-05-15', progress: 0 },
+    { id: '7', name: 'Court Installation', start: '2025-05-16', end: '2025-06-05', progress: 0 },
+    { id: '8', name: 'Gym Fit-Out', start: '2025-06-06', end: '2025-06-25', progress: 0 },
+    { id: '9', name: 'Amenities & Facilities Install', start: '2025-06-08', end: '2025-07-01', progress: 0 },
+    { id: '10', name: 'Staff Recruitment & Training', start: '2025-06-15', end: '2025-07-05', progress: 0 },
+    { id: '11', name: 'Marketing & Pre-Opening Campaign', start: '2025-06-20', end: '2025-07-10', progress: 0 },
+    { id: '12', name: 'Soft Opening', start: '2025-07-11', end: '2025-07-15', progress: 0 },
+    { id: '13', name: 'Full Operations Launch', start: '2025-07-20', end: '2025-07-20', progress: 0 }
   ];
   const ganttContainer = document.getElementById('ganttContainer');
   ganttContainer.innerHTML = "";
   const ganttDiv = document.createElement('div');
   ganttDiv.id = "ganttChartDiv";
   ganttContainer.appendChild(ganttDiv);
-  new Gantt("#ganttChartDiv", tasks, { view_mode: 'Month', custom_popup_html: null });
+  new Gantt("#ganttChartDiv", tasks, { view_mode: 'Month' });
 }
-  // Clear previous content
-  const ganttContainer = document.getElementById('ganttContainer');
-  ganttContainer.innerHTML = "";
-  // Create a new div for the chart
-  const ganttDiv = document.createElement('div');
-  ganttDiv.id = "ganttChartDiv";
-  ganttContainer.appendChild(ganttDiv);
-  new Gantt("#ganttChartDiv", tasks, { view_mode: 'Month', custom_popup_html: null });
-}
-// Add "Include Gym" checkbox to ROI and Profit tabs dynamically
-window.onload = () => {
+
+// --- Onload glue code for initial setup and tab logic ---
+window.onload = function () {
+  document.querySelectorAll('nav.tabs button').forEach(btn => {
+    btn.addEventListener('click', function () {
+      showTab(this.dataset.tab || this.getAttribute('aria-controls'));
+    });
+  });
   showTab('padel');
-  document.getElementById('calculatePadelBtn').addEventListener('click', calculatePadel);
-  document.getElementById('calculateGymBtn').addEventListener('click', calculateGym);
-  updateRampDurationLabel(document.getElementById('rampDuration').value);
-  updateRampEffectLabel(document.getElementById('rampEffect').value);
-  updateROIAdjustmentLabel();
+  document.getElementById('calculatePadelBtn')?.addEventListener('click', calculatePadel);
+  document.getElementById('calculateGymBtn')?.addEventListener('click', calculateGym);
+  if(document.getElementById('rampDuration')) updateRampDurationLabel(document.getElementById('rampDuration').value);
+  if(document.getElementById('rampEffect')) updateRampEffectLabel(document.getElementById('rampEffect').value);
+  if(document.getElementById('roiRevAdjust')) updateROIAdjustmentLabel();
   calculatePadel();
   calculateGym();
   renderScenarioList();
   renderScenarioDiff();
-
   // Add the "Include Gym" checkbox if not present
   ['pnl', 'roi'].forEach(tab => {
     const parent = document.getElementById(tab);
-    if (!document.getElementById('includeGym')) {
+    if (parent && !document.getElementById('includeGym')) {
       const cb = document.createElement('label');
       cb.innerHTML = `<input type="checkbox" id="includeGym" checked /> Include Gym in calculations`;
       cb.style.display = 'block';

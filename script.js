@@ -48,6 +48,24 @@ function calculateStaffCosts(ids) {
 let pnlChart, profitTrendChart, costPieChart, roiLineChart, roiBarChart, roiPieChart, roiBreakEvenChart, tornadoChart;
 function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
 
+// --- Tab Navigation & Scroll ---
+function showTab(tabId) {
+  document.querySelectorAll('.tab-content').forEach(sec => {
+    sec.classList.toggle('hidden', sec.id !== tabId);
+  });
+  document.querySelectorAll('nav.tabs button').forEach(btn => {
+    const isActive = btn.dataset.tab === tabId;
+    btn.classList.toggle('active', isActive);
+    if (isActive) btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
+  });
+  if (tabId === 'pnl') updatePnL();
+  if (tabId === 'roi') { updateROI(); drawTornadoChart(); }
+  if (tabId === 'summary') generateSummaryReport();
+  if (tabId === 'gantt') { renderGanttTaskList(); drawGantt(); }
+  if (tabId === 'scenarios') { renderScenarioList(); renderScenarioDiff(); }
+}
+window.showTab = showTab;
+
 // --- Padel Calculation ---
 window.calculatePadel = function() {
   const errors = validateInputs(padelInputIds);
@@ -71,44 +89,6 @@ window.calculatePadel = function() {
     ['padelAddStaff', 'padelAddStaffSal'],
   ]);
   const netProfit = totalRevenue - totalOpCosts - totalStaffCost;
-  // Utilization breakdown
-  const peakAvailable = peakHours * peakDays * peakWeeks;
-  const peakUtilized = peakAvailable * peakUtil;
-  const offAvailable = offHours * peakDays * peakWeeks;
-  const offUtilized = offAvailable * offUtil;
-  const utilBreakdown = `
-  <h4>Utilization Breakdown (per court)</h4>
-  <ul>
-    <li>Peak: ${peakHours}h/day × ${peakDays}d/week × ${peakWeeks}w/year = <b>${peakAvailable}</b> hours available</li>
-    <li>Peak Utilized: <b>${peakUtilized.toFixed(1)}</b> hours/year (${(peakUtil*100).toFixed(1)}% utilization)</li>
-    <li>Off-Peak: ${offHours}h/day × ${peakDays}d/week × ${peakWeeks}w/year = <b>${offAvailable}</b> hours available</li>
-    <li>Off-Peak Utilized: <b>${offUtilized.toFixed(1)}</b> hours/year (${(offUtil*100).toFixed(1)}% utilization)</li>
-    <li>Total Utilized (all courts): <b>${((peakUtilized + offUtilized) * courts).toFixed(1)}</b> hours/year</li>
-  </ul>
-  `;
-  window.padelData = {
-    revenue: totalRevenue,
-    costs: totalOpCosts + totalStaffCost,
-    profit: netProfit,
-    monthlyRevenue: totalRevenue / 12,
-    monthlyCosts: (totalOpCosts + totalStaffCost) / 12,
-    monthlyProfit: netProfit / 12,
-  };
-  document.getElementById('padelSummary').innerHTML = `
-    <h3>Summary</h3>
-    <p><b>Total Revenue:</b> €${totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-    <p><b>Operational Costs:</b> €${totalOpCosts.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-    <p><b>Staff Costs:</b> €${totalStaffCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-    <p><b>Net Profit:</b> €${netProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-    ${utilBreakdown}
-  `;
-  updatePnL();
-  updateROI();
-};
-
-};
-  const netProfit = totalRevenue - totalOpCosts - totalStaffCost;
-  // Utilization breakdown
   const peakAvailable = peakHours * peakDays * peakWeeks;
   const peakUtilized = peakAvailable * peakUtil;
   const offAvailable = offHours * peakDays * peakWeeks;
@@ -431,7 +411,6 @@ window.updateROI = updateROI;
 
 // --- Tornado Chart (Sensitivity Analysis) ---
 function drawTornadoChart() {
-  // Key vars: utilization, rates, salaries for both gym/padel
   const keyVars = [
     { label: 'Padel Utilization', id: 'padelPeakUtil', base: getNumberInputValue('padelPeakUtil') },
     { label: 'Padel Fee', id: 'padelPeakRate', base: getNumberInputValue('padelPeakRate') },
@@ -566,7 +545,6 @@ function generateSummaryReport() {
       <li>Gym Weekly Fee: €${getNumberInputValue('gymWeekFee')}</li>
     </ul>
   `;
-  // Summary charts
   if (window.summaryPnLChart) window.summaryPnLChart.destroy();
   if (window.summaryROIChart) window.summaryROIChart.destroy();
   window.summaryPnLChart = new Chart(document.getElementById('summaryPnL').getContext('2d'), {
@@ -701,15 +679,14 @@ function drawGantt() {
   }
 }
 
-// --- Tab Navigation & Initialization ---
-window.showTab = showTab;
+// --- Initialization ---
 window.onload = function () {
   document.querySelectorAll('nav.tabs button').forEach(btn => {
     btn.addEventListener('click', function () {
       showTab(this.dataset.tab || this.getAttribute('aria-controls'));
     });
   });
-  showTab('padel'); // default tab
+  showTab('padel');
   document.getElementById('calculatePadelBtn')?.addEventListener('click', calculatePadel);
   document.getElementById('calculateGymBtn')?.addEventListener('click', calculateGym);
   document.getElementById('includeGym')?.addEventListener('change', updatePnL);

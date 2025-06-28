@@ -105,6 +105,41 @@ window.calculatePadel = function() {
   updatePnL();
   updateROI();
 };
+  const netProfit = totalRevenue - totalOpCosts - totalStaffCost;
+  // Utilization breakdown
+  const peakAvailable = peakHours * peakDays * peakWeeks;
+  const peakUtilized = peakAvailable * peakUtil;
+  const offAvailable = offHours * peakDays * peakWeeks;
+  const offUtilized = offAvailable * offUtil;
+  const utilBreakdown = `
+  <h4>Utilization Breakdown (per court)</h4>
+  <ul>
+    <li>Peak: ${peakHours}h/day × ${peakDays}d/week × ${peakWeeks}w/year = <b>${peakAvailable}</b> hours available</li>
+    <li>Peak Utilized: <b>${peakUtilized.toFixed(1)}</b> hours/year (${(peakUtil*100).toFixed(1)}% utilization)</li>
+    <li>Off-Peak: ${offHours}h/day × ${peakDays}d/week × ${peakWeeks}w/year = <b>${offAvailable}</b> hours available</li>
+    <li>Off-Peak Utilized: <b>${offUtilized.toFixed(1)}</b> hours/year (${(offUtil*100).toFixed(1)}% utilization)</li>
+    <li>Total Utilized (all courts): <b>${((peakUtilized + offUtilized) * courts).toFixed(1)}</b> hours/year</li>
+  </ul>
+  `;
+  window.padelData = {
+    revenue: totalRevenue,
+    costs: totalOpCosts + totalStaffCost,
+    profit: netProfit,
+    monthlyRevenue: totalRevenue / 12,
+    monthlyCosts: (totalOpCosts + totalStaffCost) / 12,
+    monthlyProfit: netProfit / 12,
+  };
+  document.getElementById('padelSummary').innerHTML = `
+    <h3>Summary</h3>
+    <p><b>Total Revenue:</b> €${totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+    <p><b>Operational Costs:</b> €${totalOpCosts.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+    <p><b>Staff Costs:</b> €${totalStaffCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+    <p><b>Net Profit:</b> €${netProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+    ${utilBreakdown}
+  `;
+  updatePnL();
+  updateROI();
+};
 
 // --- Gym Calculation ---
 window.calculateGym = function() {

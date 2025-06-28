@@ -39,17 +39,45 @@
         <label>Per Court Cost: <input id="padelCourtCost" type="number" value="18000"></label>
         <label>Amenities: <input id="padelAmenities" type="number" value="20000"></label>
       </div>
-      <div class="section-group">
-        <h3>Utilization Inputs</h3>
-        <label>Peak Hours/Day: <input id="padelPeakHours" type="number" value="4"></label>
-        <label>Peak Rate: <input id="padelPeakRate" type="number" value="40"></label>
-        <label>Peak Utilization (%): <input id="padelPeakUtil" type="number" value="70"></label>
-        <label>Off Hours/Day: <input id="padelOffHours" type="number" value="2"></label>
-        <label>Off Rate: <input id="padelOffRate" type="number" value="25"></label>
-        <label>Off Utilization (%): <input id="padelOffUtil" type="number" value="35"></label>
-        <label>Days/Week: <input id="padelDays" type="number" value="7"></label>
-        <label>Weeks/Year: <input id="padelWeeks" type="number" value="52"></label>
-      </div>
+     <div class="section-group">
+  <h3>Utilization Inputs</h3>
+  <label>
+    Peak Hours/Day:
+    <input id="padelPeakHours" type="range" min="0" max="12" value="4" step="0.5" oninput="peakHoursVal.value=this.value; calculatePadel()">
+    <input id="peakHoursVal" type="number" min="0" max="12" value="4" step="0.5" oninput="padelPeakHours.value=this.value; calculatePadel()">
+  </label>
+  <label>
+    Peak Utilization (%):
+    <input id="padelPeakUtil" type="range" min="0" max="100" value="70" step="1" oninput="peakUtilVal.value=this.value; calculatePadel()">
+    <input id="peakUtilVal" type="number" min="0" max="100" value="70" step="1" oninput="padelPeakUtil.value=this.value; calculatePadel()">
+  </label>
+  <label>
+    Peak Rate:
+    <input id="padelPeakRate" type="range" min="0" max="100" value="40" step="1" oninput="peakRateVal.value=this.value; calculatePadel()">
+    <input id="peakRateVal" type="number" min="0" max="100" value="40" step="1" oninput="padelPeakRate.value=this.value; calculatePadel()">
+  </label>
+  <label>
+    Off Hours/Day:
+    <input id="padelOffHours" type="range" min="0" max="12" value="2" step="0.5" oninput="offHoursVal.value=this.value; calculatePadel()">
+    <input id="offHoursVal" type="number" min="0" max="12" value="2" step="0.5" oninput="padelOffHours.value=this.value; calculatePadel()">
+  </label>
+  <label>
+    Off Utilization (%):
+    <input id="padelOffUtil" type="range" min="0" max="100" value="35" step="1" oninput="offUtilVal.value=this.value; calculatePadel()">
+    <input id="offUtilVal" type="number" min="0" max="100" value="35" step="1" oninput="padelOffUtil.value=this.value; calculatePadel()">
+  </label>
+  <label>
+    Off Rate:
+    <input id="padelOffRate" type="range" min="0" max="100" value="25" step="1" oninput="offRateVal.value=this.value; calculatePadel()">
+    <input id="offRateVal" type="number" min="0" max="100" value="25" step="1" oninput="padelOffRate.value=this.value; calculatePadel()">
+  </label>
+  <label>
+    Days/Week: <input id="padelDays" type="number" value="7">
+  </label>
+  <label>
+    Weeks/Year: <input id="padelWeeks" type="number" value="52">
+  </label>
+</div>
       <div class="section-group">
         <h3>Operating Costs</h3>
         <label>Utilities/year: <input id="padelUtil" type="number" value="5000"></label>

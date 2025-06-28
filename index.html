@@ -31,13 +31,16 @@
     <!-- Padel Tab -->
     <section id="padel" class="tab-content">
       <h2>Padel Investment &amp; Revenue</h2>
-      <div class="inputs section-group">
+      <div class="section-group">
+        <h3>Investment Inputs</h3>
         <label>Ground Cost: <input id="padelGround" type="number" value="50000"></label>
         <label>Structure Cost: <input id="padelStructure" type="number" value="120000"></label>
         <label>Number of Courts: <input id="padelCourts" type="number" value="3"></label>
         <label>Per Court Cost: <input id="padelCourtCost" type="number" value="18000"></label>
         <label>Amenities: <input id="padelAmenities" type="number" value="20000"></label>
-        <br>
+      </div>
+      <div class="section-group">
+        <h3>Utilization Inputs</h3>
         <label>Peak Hours/Day: <input id="padelPeakHours" type="number" value="4"></label>
         <label>Peak Rate: <input id="padelPeakRate" type="number" value="40"></label>
         <label>Peak Utilization (%): <input id="padelPeakUtil" type="number" value="70"></label>
@@ -46,6 +49,9 @@
         <label>Off Utilization (%): <input id="padelOffUtil" type="number" value="35"></label>
         <label>Days/Week: <input id="padelDays" type="number" value="7"></label>
         <label>Weeks/Year: <input id="padelWeeks" type="number" value="52"></label>
+      </div>
+      <div class="section-group">
+        <h3>Operating Costs</h3>
         <label>Utilities/year: <input id="padelUtil" type="number" value="5000"></label>
         <label>Insurance/year: <input id="padelInsure" type="number" value="2500"></label>
         <label>Maintenance/year: <input id="padelMaint" type="number" value="3000"></label>
@@ -53,7 +59,9 @@
         <label>Admin/year: <input id="padelAdmin" type="number" value="3500"></label>
         <label>Cleaning/year: <input id="padelClean" type="number" value="2000"></label>
         <label>Misc/year: <input id="padelMisc" type="number" value="1000"></label>
-        <br>
+      </div>
+      <div class="section-group">
+        <h3>Staffing</h3>
         <label>Full-time Manager: <input id="padelFtMgr" type="number" value="1"></label>
         <label>FT Mgr Salary: <input id="padelFtMgrSal" type="number" value="35000"></label>
         <label>Full-time Reception: <input id="padelFtRec" type="number" value="1"></label>
@@ -71,17 +79,26 @@
     <!-- Gym Tab -->
     <section id="gym" class="tab-content hidden">
       <h2>Gym Investment &amp; Revenue</h2>
-      <div class="inputs section-group">
+      <div class="section-group">
+        <h3>Investment Inputs</h3>
         <label>Equipment: <input id="gymEquip" type="number" value="35000"></label>
         <label>Flooring: <input id="gymFloor" type="number" value="12000"></label>
         <label>Amenities: <input id="gymAmen" type="number" value="8000"></label>
-        <br>
+      </div>
+      <div class="section-group">
+        <h3>Utilization Inputs</h3>
         <label>Weekly Members: <input id="gymWeekMembers" type="number" value="30"></label>
         <label>Weekly Fee: <input id="gymWeekFee" type="number" value="25"></label>
         <label>Monthly Members: <input id="gymMonthMembers" type="number" value="20"></label>
         <label>Monthly Fee: <input id="gymMonthFee" type="number" value="60"></label>
         <label>Annual Members: <input id="gymAnnualMembers" type="number" value="10"></label>
         <label>Annual Fee: <input id="gymAnnualFee" type="number" value="500"></label>
+        <label><input type="checkbox" id="gymRamp"> Use Ramp-up</label>
+        <label>Ramp Months: <input id="rampDuration" type="number" value="3" min="1" max="12"></label>
+        <label>Ramp Effect (%): <input id="rampEffect" type="number" value="50" min="0" max="100"></label>
+      </div>
+      <div class="section-group">
+        <h3>Operating Costs</h3>
         <label>Utilities/year: <input id="gymUtil" type="number" value="3000"></label>
         <label>Insurance/year: <input id="gymInsure" type="number" value="1800"></label>
         <label>Maintenance/year: <input id="gymMaint" type="number" value="2500"></label>
@@ -89,16 +106,15 @@
         <label>Admin/year: <input id="gymAdmin" type="number" value="2000"></label>
         <label>Cleaning/year: <input id="gymClean" type="number" value="1500"></label>
         <label>Misc/year: <input id="gymMisc" type="number" value="1000"></label>
-        <br>
+      </div>
+      <div class="section-group">
+        <h3>Staffing</h3>
         <label>Full-time Trainer: <input id="gymFtTrainer" type="number" value="1"></label>
         <label>FT Trainer Salary: <input id="gymFtTrainerSal" type="number" value="22000"></label>
         <label>Part-time Trainer: <input id="gymPtTrainer" type="number" value="1"></label>
         <label>PT Trainer Salary: <input id="gymPtTrainerSal" type="number" value="9000"></label>
         <label>Additional Staff: <input id="gymAddStaff" type="number" value="0"></label>
         <label>Add Staff Salary: <input id="gymAddStaffSal" type="number" value="0"></label>
-        <label><input type="checkbox" id="gymRamp"> Use Ramp-up</label>
-        <label>Ramp Months: <input id="rampDuration" type="number" value="3" min="1" max="12"></label>
-        <label>Ramp Effect (%): <input id="rampEffect" type="number" value="50" min="0" max="100"></label>
       </div>
       <div id="gymSummary" class="summary" aria-live="polite"></div>
       <button id="calculateGymBtn">Calculate Gym</button>
@@ -186,6 +202,19 @@
     <!-- Gantt Tab -->
     <section id="gantt" class="tab-content hidden">
       <h2>Project Timeline (Gantt)</h2>
+      <p style="color:#888; margin-bottom:1rem;">
+        Edit the timeline below: add, edit, or remove tasks. Changes update instantly.
+      </p>
+      <form id="ganttTaskForm" class="section-group" style="margin-bottom:1rem;">
+        <input type="hidden" id="ganttEditId" value="">
+        <label>Task Name: <input type="text" id="ganttTaskName" required></label>
+        <label>Start Date: <input type="date" id="ganttTaskStart" required></label>
+        <label>End Date: <input type="date" id="ganttTaskEnd" required></label>
+        <label>Progress (%): <input type="number" id="ganttTaskProgress" min="0" max="100" value="0"></label>
+        <button type="submit" id="ganttTaskSaveBtn">Add/Update Task</button>
+        <button type="button" id="ganttTaskResetBtn">Reset Form</button>
+      </form>
+      <div id="ganttTaskList" class="section-group"></div>
       <div id="ganttContainer"></div>
     </section>
   </main>

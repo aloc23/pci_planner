@@ -1,4 +1,7 @@
-// --- Utility functions and variable declarations ---
+// Padel Club Investment Planner - Full Featured Script
+// Includes: Scenarios, Tornado, Export, Gantt, Summaries, Charts, etc.
+
+// --- Utility Functions & Variable Declarations ---
 function getNumberInputValue(id) {
   const el = document.getElementById(id);
   const val = el ? Number(el.value) : NaN;
@@ -45,17 +48,15 @@ function calculateStaffCosts(ids) {
 let pnlChart, profitTrendChart, costPieChart, roiLineChart, roiBarChart, roiPieChart, roiBreakEvenChart, tornadoChart;
 function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
 
-// --- Tab Navigation ---
+// --- Tab Navigation & Scroll ---
 function showTab(tabId) {
   document.querySelectorAll('.tab-content').forEach(sec => {
     sec.classList.toggle('hidden', sec.id !== tabId);
   });
   document.querySelectorAll('nav.tabs button').forEach(btn => {
-    btn.classList.toggle('active', btn.id === 'btn' + capitalize(tabId));
-    // Scroll the active button into view smoothly
-    if (btn.id === 'btn' + capitalize(tabId)) {
-      btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
-    }
+    const isActive = btn.dataset.tab === tabId;
+    btn.classList.toggle('active', isActive);
+    if (isActive) btn.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
   });
   if (tabId === 'pnl') updatePnL();
   if (tabId === 'roi') { updateROI(); drawTornadoChart(); }
@@ -76,10 +77,6 @@ window.calculatePadel = function() {
   const offHours = getNumberInputValue('padelOffHours');
   const offUtil = getNumberInputValue('padelOffUtil') / 100;
   const courts = getNumberInputValue('padelCourts');
-  const peakAvailable = peakHours * peakDays * peakWeeks;
-  const peakUtilized = peakAvailable * peakUtil;
-  const offAvailable = offHours * peakDays * peakWeeks;
-  const offUtilized = offAvailable * offUtil;
   const peakAnnualRevenue = peakHours * getNumberInputValue('padelPeakRate') * peakDays * peakWeeks * courts * peakUtil;
   const offAnnualRevenue = offHours * getNumberInputValue('padelOffRate') * peakDays * peakWeeks * courts * offUtil;
   const totalRevenue = peakAnnualRevenue + offAnnualRevenue;
@@ -100,23 +97,12 @@ window.calculatePadel = function() {
     monthlyCosts: (totalOpCosts + totalStaffCost) / 12,
     monthlyProfit: netProfit / 12,
   };
-  const utilBreakdown = `
-  <h4>Utilization Breakdown (per court)</h4>
-  <ul>
-    <li>Peak: ${peakHours}h/day × ${peakDays}d/week × ${peakWeeks}w/year = <b>${peakAvailable}</b> hours available</li>
-    <li>Peak Utilized: <b>${peakUtilized.toFixed(1)}</b> hours/year (${(peakUtil*100).toFixed(1)}% utilization)</li>
-    <li>Off-Peak: ${offHours}h/day × ${peakDays}d/week × ${peakWeeks}w/year = <b>${offAvailable}</b> hours available</li>
-    <li>Off-Peak Utilized: <b>${offUtilized.toFixed(1)}</b> hours/year (${(offUtil*100).toFixed(1)}% utilization)</li>
-    <li>Total Utilized (all courts): <b>${((peakUtilized + offUtilized) * courts).toFixed(1)}</b> hours/year</li>
-  </ul>
-  `;
   document.getElementById('padelSummary').innerHTML = `
     <h3>Summary</h3>
     <p><b>Total Revenue:</b> €${totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     <p><b>Operational Costs:</b> €${totalOpCosts.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     <p><b>Staff Costs:</b> €${totalStaffCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     <p><b>Net Profit:</b> €${netProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-    ${utilBreakdown}
   `;
   updatePnL();
   updateROI();
@@ -170,45 +156,34 @@ window.calculateGym = function() {
   updateROI();
 };
 function gymIncluded() {
-  const el = document.getElementById('includeGym');
-  return el ? el.checked : true;
+  return document.getElementById('includeGym')?.checked ?? true;
+}
+function gymIncludedROI() {
+  return document.getElementById('includeGymROI')?.checked ?? true;
 }
 
 // --- PnL Calculation and Charts ---
-window.updatePnL = function() {
-  const plType = document.querySelector('input[name="pl_toggle"]:checked').value;
+function updatePnL() {
   const padel = window.padelData || { revenue: 0, costs: 0, profit: 0, monthlyRevenue: 0, monthlyCosts: 0, monthlyProfit: 0 };
   const gym = gymIncluded() && window.gymData ? window.gymData : { revenue: 0, costs: 0, profit: 0, monthlyRevenue: 0, monthlyCosts: 0, monthlyProfit: 0 };
   const totalRevenue = padel.revenue + gym.revenue;
   const totalCosts = padel.costs + gym.costs;
   const totalProfit = padel.profit + gym.profit;
-  const totalInvestment = getTotalInvestment();
-  const depreciation = totalInvestment * 0.05;
-  const ebitda = totalProfit + depreciation;
-  const netMargin = totalRevenue ? (totalProfit / totalRevenue) * 100 : 0;
-  const ebitdaMargin = totalRevenue ? (ebitda / totalRevenue) * 100 : 0;
   const summaryDiv = document.getElementById('pnlSummary');
   summaryDiv.innerHTML = `
     <p><b>Total Revenue:</b> €${Math.round(totalRevenue).toLocaleString('en-US')}</p>
     <p><b>Total Costs:</b> €${Math.round(totalCosts).toLocaleString('en-US')}</p>
-    <p><b>EBITDA:</b> €${Math.round(ebitda).toLocaleString('en-US')}</p>
     <p><b>Net Profit:</b> €${Math.round(totalProfit).toLocaleString('en-US')}</p>
-    <p><b>Net Margin:</b> ${netMargin.toFixed(1)}%</p>
-    <p><b>EBITDA Margin:</b> ${ebitdaMargin.toFixed(1)}%</p>
   `;
   // Monthly breakdown
   const tbody = document.querySelector('#monthlyBreakdown tbody');
   tbody.innerHTML = '';
-  if (plType === 'monthly') {
-    for (let i = 1; i <= 12; i++) {
-      const rev = (padel.monthlyRevenue + gym.monthlyRevenue);
-      const costs = (padel.monthlyCosts + gym.monthlyCosts);
-      const profit = (padel.monthlyProfit + gym.monthlyProfit);
-      const row = `<tr><td>${i}</td><td>€${rev.toFixed(2)}</td><td>€${costs.toFixed(2)}</td><td>€${profit.toFixed(2)}</td></tr>`;
-      tbody.insertAdjacentHTML('beforeend', row);
-    }
-  } else {
-    tbody.innerHTML = '<tr><td colspan="4">Switch to monthly view to see breakdown</td></tr>';
+  for (let i = 1; i <= 12; i++) {
+    const rev = (padel.monthlyRevenue + gym.monthlyRevenue);
+    const costs = (padel.monthlyCosts + gym.monthlyCosts);
+    const profit = (padel.monthlyProfit + gym.monthlyProfit);
+    const row = `<tr><td>${i}</td><td>€${rev.toFixed(2)}</td><td>€${costs.toFixed(2)}</td><td>€${profit.toFixed(2)}</td></tr>`;
+    tbody.insertAdjacentHTML('beforeend', row);
   }
   // Cash flow calculation
   const cashFlowBody = document.querySelector('#cashFlowTable tbody');
@@ -243,14 +218,13 @@ window.updatePnL = function() {
   // Profit Trend Chart
   const ctxProfitTrend = document.getElementById('profitTrendChart').getContext('2d');
   const monthlyProfits = new Array(12).fill(totalProfit / 12);
-  const annualProfits = new Array(10).fill(totalProfit);
   profitTrendChart = new Chart(ctxProfitTrend, {
     type: 'line',
     data: {
-      labels: plType === 'monthly' ? [...Array(12).keys()].map(m => `Month ${m + 1}`) : [...Array(10).keys()].map(y => `Year ${y + 1}`),
+      labels: [...Array(12).keys()].map(m => `Month ${m + 1}`),
       datasets: [{
         label: 'Profit',
-        data: plType === 'monthly' ? monthlyProfits : annualProfits,
+        data: monthlyProfits,
         fill: true,
         backgroundColor: 'rgba(33,150,243,0.2)',
         borderColor: 'rgba(33,150,243,1)',
@@ -273,7 +247,7 @@ window.updatePnL = function() {
     },
     options: { responsive: true, maintainAspectRatio: false }
   });
-};
+}
 function getTotalInvestment() {
   return (
     getNumberInputValue('padelGround') +
@@ -298,9 +272,9 @@ window.updateRampDurationLabel = function(val) {
 window.updateRampEffectLabel = function(val) {
   document.getElementById('rampEffectLabel').textContent = `${val}%`;
 };
-window.updateROI = function() {
+function updateROI() {
   const padel = window.padelData || { revenue: 0, costs: 0, profit: 0 };
-  const gym = gymIncluded() && window.gymData ? window.gymData : { revenue: 0, costs: 0, profit: 0 };
+  const gym = gymIncludedROI() && window.gymData ? window.gymData : { revenue: 0, costs: 0, profit: 0 };
   const revAdjust = getNumberInputValue('roiRevAdjust') / 100;
   const costAdjust = getNumberInputValue('roiCostAdjust') / 100;
   const padelAdjProfit = (padel.revenue * revAdjust) - (padel.costs * costAdjust);
@@ -314,8 +288,8 @@ window.updateROI = function() {
     getNumberInputValue('gymEquip') +
     getNumberInputValue('gymFloor') +
     getNumberInputValue('gymAmen');
-  const totalInvestment = padelInvestment + (gymIncluded() ? gymInvestment : 0);
-  const annualProfit = padelAdjProfit + (gymIncluded() ? gymAdjProfit : 0);
+  const totalInvestment = padelInvestment + (gymIncludedROI() ? gymInvestment : 0);
+  const annualProfit = padelAdjProfit + (gymIncludedROI() ? gymAdjProfit : 0);
   const paybackYears = annualProfit > 0 ? Math.ceil(totalInvestment / annualProfit) : '∞';
   document.getElementById('yearsToROIText').innerHTML = `<div class="roi-summary">Estimated Payback Period: <b>${paybackYears} year(s)</b></div>`;
   let cumulativeProfit = 0;
@@ -357,7 +331,7 @@ window.updateROI = function() {
       labels: ['Padel', 'Gym'],
       datasets: [{
         label: 'Annual Profit (€)',
-        data: [padelAdjProfit, gymIncluded() ? gymAdjProfit : 0],
+        data: [padelAdjProfit, gymIncludedROI() ? gymAdjProfit : 0],
         backgroundColor: ['#e67e22', '#2980b9']
       }]
     },
@@ -370,7 +344,7 @@ window.updateROI = function() {
     data: {
       labels: ['Padel Investment', 'Gym Investment'],
       datasets: [{
-        data: [padelInvestment, gymIncluded() ? gymInvestment : 0],
+        data: [padelInvestment, gymIncludedROI() ? gymInvestment : 0],
         backgroundColor: ['#c0392b', '#2980b9']
       }]
     },
@@ -414,9 +388,12 @@ window.updateROI = function() {
   roiKPIs.innerHTML = '<h3>ROI Percentages</h3><ul>' + roiPercentages.map(item => {
     return `<li>Year ${item.year}: ${isFinite(item.roi) ? item.roi.toFixed(1) + '%' : 'N/A'}</li>`;
   }).join('') + '</ul>';
-};
-// Tornado Chart
+}
+window.updateROI = updateROI;
+
+// --- Tornado Chart (Sensitivity Analysis) ---
 function drawTornadoChart() {
+  // Key vars: utilization, rates, salaries for both gym/padel
   const basePadel = window.padelData || { revenue: 0, costs: 0, profit: 0 };
   const baseGym = window.gymData || { revenue: 0, costs: 0, profit: 0 };
   const keyVars = [
@@ -597,7 +574,7 @@ window.exportExcel = function() {
   XLSX.writeFile(wb, "Investment_Breakdown.xlsx");
 };
 
-// --- Gantt Chart with recommended project tasks ---
+// --- Gantt Chart ---
 function drawGantt() {
   const tasks = [
     { id: '1', name: 'Feasibility Study & Business Plan', start: '2025-01-01', end: '2025-01-21', progress: 100 },
@@ -622,7 +599,7 @@ function drawGantt() {
   new Gantt("#ganttChartDiv", tasks, { view_mode: 'Month' });
 }
 
-// --- Onload glue code for initial setup and tab logic ---
+// --- Initialization ---
 window.onload = function () {
   document.querySelectorAll('nav.tabs button').forEach(btn => {
     btn.addEventListener('click', function () {
@@ -632,26 +609,10 @@ window.onload = function () {
   showTab('padel');
   document.getElementById('calculatePadelBtn')?.addEventListener('click', calculatePadel);
   document.getElementById('calculateGymBtn')?.addEventListener('click', calculateGym);
-  if(document.getElementById('rampDuration')) updateRampDurationLabel(document.getElementById('rampDuration').value);
-  if(document.getElementById('rampEffect')) updateRampEffectLabel(document.getElementById('rampEffect').value);
-  if(document.getElementById('roiRevAdjust')) updateROIAdjustmentLabel();
+  document.getElementById('includeGym')?.addEventListener('change', updatePnL);
+  document.getElementById('includeGymROI')?.addEventListener('change', updateROI);
   calculatePadel();
   calculateGym();
   renderScenarioList();
   renderScenarioDiff();
-  // Add the "Include Gym" checkbox if not present
-  ['pnl', 'roi'].forEach(tab => {
-    const parent = document.getElementById(tab);
-    if (parent && !document.getElementById('includeGym')) {
-      const cb = document.createElement('label');
-      cb.innerHTML = `<input type="checkbox" id="includeGym" checked /> Include Gym in calculations`;
-      cb.style.display = 'block';
-      cb.style.marginBottom = '1em';
-      parent.insertBefore(cb, parent.firstChild);
-      cb.querySelector('input').addEventListener('change', () => {
-        updatePnL();
-        updateROI();
-      });
-    }
-  });
 };

@@ -4,14 +4,13 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Padel Club Investment Planner</title>
-  <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.2/dist/frappe-gantt.min.js"></script>
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/frappe-gantt@0.6.2/dist/frappe-gantt.css"/>
-  <script src="script.js"></script>
+  <script src="script.js" defer></script>
 </head>
 <body>
   <header>
@@ -21,17 +20,18 @@
   <nav class="tabs" role="tablist">
     <button type="button" id="btnPadel" data-tab="padel" class="active" aria-controls="padel">Padel</button>
     <button type="button" id="btnGym" data-tab="gym" aria-controls="gym">Gym</button>
-    <button type="button" id="btnPnl" data-tab="pnl" aria-controls="pnl">P&amp;L</button>
+    <button type="button" id="btnPnl" data-tab="pnl" aria-controls="pnl">Profit &amp; Loss</button>
     <button type="button" id="btnRoi" data-tab="roi" aria-controls="roi">ROI</button>
-    <button type="button" id="btnGantt" data-tab="gantt" aria-controls="gantt">Gantt</button>
-    <button type="button" id="btnSummary" data-tab="summary" aria-controls="summary">Summary</button>
     <button type="button" id="btnScenarios" data-tab="scenarios" aria-controls="scenarios">Scenarios</button>
+    <button type="button" id="btnSummary" data-tab="summary" aria-controls="summary">Summary</button>
+    <button type="button" id="btnGantt" data-tab="gantt" aria-controls="gantt">Gantt</button>
+    <button type="button" id="btnFiles" onclick="window.open('https://aloc23.github.io/pci_project_file_viewer/', '_blank')">Files</button>
   </nav>
   <main>
     <!-- Padel Tab -->
     <section id="padel" class="tab-content">
       <h2>Padel Investment &amp; Revenue</h2>
-      <div class="inputs">
+      <div class="inputs section-group">
         <label>Ground Cost: <input id="padelGround" type="number" value="50000"></label>
         <label>Structure Cost: <input id="padelStructure" type="number" value="120000"></label>
         <label>Number of Courts: <input id="padelCourts" type="number" value="3"></label>
@@ -65,13 +65,13 @@
         <label>Additional Staff: <input id="padelAddStaff" type="number" value="0"></label>
         <label>Add Staff Salary: <input id="padelAddStaffSal" type="number" value="0"></label>
       </div>
-      <div id="padelSummary"></div>
+      <div id="padelSummary" class="summary" aria-live="polite"></div>
       <button id="calculatePadelBtn">Calculate Padel</button>
     </section>
     <!-- Gym Tab -->
     <section id="gym" class="tab-content hidden">
       <h2>Gym Investment &amp; Revenue</h2>
-      <div class="inputs">
+      <div class="inputs section-group">
         <label>Equipment: <input id="gymEquip" type="number" value="35000"></label>
         <label>Flooring: <input id="gymFloor" type="number" value="12000"></label>
         <label>Amenities: <input id="gymAmen" type="number" value="8000"></label>
@@ -100,68 +100,94 @@
         <label>Ramp Months: <input id="rampDuration" type="number" value="3" min="1" max="12"></label>
         <label>Ramp Effect (%): <input id="rampEffect" type="number" value="50" min="0" max="100"></label>
       </div>
-      <div id="gymSummary"></div>
+      <div id="gymSummary" class="summary" aria-live="polite"></div>
       <button id="calculateGymBtn">Calculate Gym</button>
     </section>
-    <!-- PnL Tab -->
+    <!-- Profit & Loss Tab -->
     <section id="pnl" class="tab-content hidden">
       <h2>Profit &amp; Loss</h2>
       <label class="include-gym-toggle">
-  <input type="checkbox" id="includeGym" checked>
-  Include Gym in calculations
-</label>
-      <div id="pnlSummary"></div>
-      <table id="monthlyBreakdown"><thead><tr><th>Month</th><th>Revenue</th><th>Costs</th><th>Profit</th></tr></thead><tbody></tbody></table>
-      <table id="cashFlowTable"><thead><tr><th>Month</th><th>Opening</th><th>Inflow</th><th>Outflow</th><th>Closing</th></tr></thead><tbody></tbody></table>
-      <canvas id="pnlChart" height="150"></canvas>
-      <canvas id="profitTrendChart" height="150"></canvas>
-      <canvas id="costPieChart" height="150"></canvas>
+        <input type="checkbox" id="includeGym" checked>
+        Include Gym in calculations
+      </label>
+      <div id="pnlSummary" class="summary" aria-live="polite"></div>
+      <canvas id="pnlChart"></canvas>
+      <canvas id="profitTrendChart"></canvas>
+      <canvas id="costPieChart"></canvas>
+      <details>
+        <summary>Monthly Breakdown</summary>
+        <table id="monthlyBreakdown" class="breakdown-table">
+          <thead>
+            <tr><th>Month</th><th>Revenue</th><th>Costs</th><th>Profit</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </details>
+      <details>
+        <summary>Monthly Cash Flow</summary>
+        <table id="cashFlowTable" class="breakdown-table">
+          <thead>
+            <tr><th>Month</th><th>Opening Balance</th><th>Cash In</th><th>Cash Out</th><th>Closing Balance</th></tr>
+          </thead>
+          <tbody></tbody>
+        </table>
+      </details>
     </section>
     <!-- ROI Tab -->
     <section id="roi" class="tab-content hidden">
-      <h2>ROI</h2>
+      <h2>Return on Investment</h2>
       <label class="include-gym-toggle">
-  <input type="checkbox" id="includeGym" checked>
-  Include Gym in calculations
-</label>
-      <div id="yearsToROIText"></div>
-      <div id="roiKPIs"></div>
-      <table id="paybackTable"><thead><tr><th>Year</th><th>Cumulative Profit</th></tr></thead><tbody></tbody></table>
-      <canvas id="roiLineChart" height="150"></canvas>
-      <canvas id="roiBarChart" height="150"></canvas>
-      <canvas id="roiPieChart" height="150"></canvas>
-      <canvas id="roiBreakEvenChart" height="150"></canvas>
-      <canvas id="tornadoChart" height="150"></canvas>
-    </section>
-    <!-- Gantt Tab -->
-    <section id="gantt" class="tab-content hidden">
-      <h2>Project Timeline (Gantt)</h2>
-      <div id="ganttContainer"></div>
-    </section>
-    <!-- Summary Tab -->
-    <section id="summary" class="tab-content hidden">
-      <h2>Summary Report</h2>
-      <div id="reportContent"></div>
-      <button onclick="exportPDF()">Export as PDF</button>
-      <button onclick="exportExcel()">Export as Excel</button>
-      <canvas id="summaryPnL" height="150"></canvas>
-      <canvas id="summaryROI" height="150"></canvas>
+        <input type="checkbox" id="includeGymROI" checked>
+        Include Gym in calculations
+      </label>
+      <div id="yearsToROIText" class="roi-summary"></div>
+      <div class="roi-controls">
+        <label for="roiRevAdjust">Revenue Adjustment (%)
+          <input type="range" id="roiRevAdjust" min="80" max="120" value="100" oninput="updateROIAdjustmentLabel(this.value)" />
+          <span id="roiRevAdjustLabel">100%</span>
+        </label>
+        <label for="roiCostAdjust">Cost Adjustment (%)
+          <input type="range" id="roiCostAdjust" min="80" max="120" value="100" oninput="updateROIAdjustmentLabel(this.value)" />
+          <span id="roiCostAdjustLabel">100%</span>
+        </label>
+      </div>
+      <canvas id="roiLineChart"></canvas>
+      <canvas id="roiBarChart"></canvas>
+      <canvas id="roiPieChart"></canvas>
+      <canvas id="roiBreakEvenChart"></canvas>
+      <details>
+        <summary>Payback Period Table</summary>
+        <table id="paybackTable" class="breakdown-table">
+          <thead><tr><th>Year</th><th>Cumulative Profit (€)</th></tr></thead>
+          <tbody></tbody>
+        </table>
+      </details>
+      <div id="roiKPIs" class="summary"></div>
+      <h3>Tornado Sensitivity Chart</h3>
+      <canvas id="tornadoChart"></canvas>
     </section>
     <!-- Scenarios Tab -->
     <section id="scenarios" class="tab-content hidden">
       <h2>Scenarios</h2>
       <form id="scenarioForm">
         <input type="text" id="scenarioName" placeholder="Scenario name" required />
-        <button type="submit">Save Scenario</button>
+        <button type="submit">Save Current Scenario</button>
       </form>
       <div id="scenarioList"></div>
       <div id="scenarioDiffContainer"></div>
     </section>
+    <!-- Summary Report Tab -->
+    <section id="summary" class="tab-content hidden">
+      <h2>Summary Report</h2>
+      <button onclick="exportPDF()">Export as PDF</button>
+      <button onclick="exportExcel()">Export as Excel</button>
+      <div id="reportContent"></div>
+    </section>
+    <!-- Gantt Tab -->
+    <section id="gantt" class="tab-content hidden">
+      <h2>Project Timeline (Gantt)</h2>
+      <div id="ganttContainer"></div>
+    </section>
   </main>
-  <script>
-    if ('serviceWorker' in navigator) {
-      navigator.serviceWorker.register('sw.js');
-    }
-  </script>
 </body>
 </html>

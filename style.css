@@ -88,12 +88,14 @@ label {
   font-weight: 600;
 }
 
-label input[type=number], label input[type=range] {
-  width: 110px;
-  padding: 5px;
-  border-radius: 3px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
+label input[type=range] {
+  width: 120px;
+  margin-right: 8px;
+  vertical-align: middle;
+}
+label input[type=number] {
+  width: 60px;
+  vertical-align: middle;
 }
 
 button {

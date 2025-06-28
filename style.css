@@ -7,228 +7,69 @@
   --header-bg: #2c3e50;
   --nav-bg: #34495e;
 }
-
-/* Reset */
-* {
-  box-sizing: border-box;
-}
-
-body {
-  font-family: Arial, sans-serif;
-  margin: 0;
-  padding: 0;
-  background: var(--bg-color);
-  color: #333;
-}
-
+* { box-sizing: border-box; }
+body { font-family: Arial, sans-serif; margin: 0; padding: 0; background: var(--bg-color); color: #333; }
 header {
-  background: var(--header-bg);
-  color: #ecf0f1;
-  padding: 1rem;
-  display: flex;
-  align-items: center;
-  gap: 1rem;
+  background: var(--header-bg); color: #ecf0f1; padding: 1rem; display: flex; align-items: center; gap: 1rem;
 }
-
-#clubLogo {
-  height: 90px;
-  width: auto;
-}
-
-h1 {
-  margin: 0;
-  font-size: 1.8rem;
-}
-
-nav.tabs {
-  display: flex;
-  background: var(--nav-bg);
-}
-
+#clubLogo { height: 90px; width: auto; }
+h1 { margin: 0; font-size: 1.8rem; }
+nav.tabs { display: flex; background: var(--nav-bg); }
 nav.tabs button {
-  flex: 1;
-  padding: 1rem;
-  font-weight: bold;
-  background: var(--nav-bg);
-  border: none;
-  color: #ecf0f1;
-  cursor: pointer;
-  transition: background 0.3s ease;
+  flex: 1; padding: 1rem; font-weight: bold; background: var(--nav-bg); border: none;
+  color: #ecf0f1; cursor: pointer; transition: background 0.3s ease;
 }
-
-nav.tabs button.active {
-  background: var(--main-color);
-  color: #fff;
-}
-
-nav.tabs button:hover, nav.tabs button:focus {
-  background: #3d566e;
-  outline: 2px solid var(--main-color);
-  outline-offset: 2px;
-}
-
-main {
-  padding: 1rem 2rem 3rem;
-  max-width: 900px;
-  margin: auto;
-}
-
-.tab-content {
-  display: block;
-}
-
-.tab-content.hidden {
-  display: none;
-}
-
+nav.tabs button.active { background: var(--main-color); color: #fff; }
+nav.tabs button:hover, nav.tabs button:focus { background: #3d566e; outline: 2px solid var(--main-color); outline-offset: 2px; }
+main { padding: 1rem 2rem 3rem; max-width: 900px; margin: auto; }
+.tab-content { display: block; }
+.tab-content.hidden { display: none; }
 .section-group {
-  background: var(--section-bg);
-  padding: 1rem 1.5rem;
-  margin-bottom: 1rem;
-  border-radius: 6px;
-  box-shadow: 0 0 6px rgba(0,0,0,0.05);
+  background: var(--section-bg); padding: 1rem 1.5rem; margin-bottom: 1rem;
+  border-radius: 6px; box-shadow: 0 0 6px rgba(0,0,0,0.05);
 }
-
-.section-group h3 {
-  margin-top: 0;
-  margin-bottom: 0.8rem;
-  color: #2c3e50;
+.section-group h3 { margin-top: 0; margin-bottom: 0.8rem; color: #2c3e50; }
+label { display: flex; justify-content: space-between; margin: 0.3rem 0; font-weight: 600; }
+label input[type=number], label input[type=range] {
+  width: 110px; padding: 5px; border-radius: 3px; border: 1px solid #ccc; font-size: 1rem;
 }
-
-label {
-  display: flex;
-  justify-content: space-between;
-  margin: 0.3rem 0;
-  font-weight: 600;
-}
-
-label input[type=number] {
-  width: 110px;
-  padding: 5px;
-  border-radius: 3px;
-  border: 1px solid #ccc;
-  font-size: 1rem;
-}
-
 button {
-  background: var(--main-color);
-  color: #fff;
-  border: none;
-  padding: 0.7rem 1.2rem;
-  font-size: 1rem;
-  font-weight: 700;
-  border-radius: 6px;
-  cursor: pointer;
-  transition: background 0.3s ease;
-  margin-top: 0.5rem;
+  background: var(--main-color); color: #fff; border: none; padding: 0.7rem 1.2rem;
+  font-size: 1rem; font-weight: 700; border-radius: 6px; cursor: pointer; transition: background 0.3s ease; margin-top: 0.5rem;
 }
-
-button:hover, button:focus {
-  background: #16a085;
-  outline: 2px solid var(--accent-color);
-  outline-offset: 2px;
-}
-
+button:hover, button:focus { background: #16a085; outline: 2px solid var(--accent-color); outline-offset: 2px; }
 .summary {
-  background: #ecf0f1;
-  border-radius: 6px;
-  padding: 1rem 1.5rem;
-  margin-top: 1rem;
-  font-weight: 700;
-  font-size: 1.1rem;
-  box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
+  background: #ecf0f1; border-radius: 6px; padding: 1rem 1.5rem; margin-top: 1rem;
+  font-weight: 700; font-size: 1.1rem; box-shadow: inset 0 0 5px rgba(0,0,0,0.1);
 }
-
-.roi-summary {
-  font-weight: 700;
-  font-size: 1.2rem;
-  color: var(--accent-color);
-  margin-bottom: 0.5rem;
-}
-
-.roi-controls {
-  display: flex;
-  gap: 1.5rem;
-  margin-top: 1rem;
-}
-
-.roi-controls label {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  font-weight: 600;
-}
-
-.roi-controls input[type=range] {
-  width: 150px;
-  vertical-align: middle;
-}
-
-#roiRevAdjustLabel,
-#roiCostAdjustLabel {
-  min-width: 40px;
-  display: inline-block;
-}
-
+.roi-summary { font-weight: 700; font-size: 1.2rem; color: var(--accent-color); margin-bottom: 0.5rem; }
+.roi-controls { display: flex; gap: 1.5rem; margin-top: 1rem; }
+.roi-controls label { display: flex; align-items: center; gap: 0.5rem; font-weight: 600; }
+.roi-controls input[type=range] { width: 150px; vertical-align: middle; }
+#roiRevAdjustLabel, #roiCostAdjustLabel { min-width: 40px; display: inline-block; }
 .breakdown-table {
-  width: 100%;
-  border-collapse: collapse;
-  margin-top: 0.7rem;
+  width: 100%; border-collapse: collapse; margin-top: 0.7rem;
 }
-
 .breakdown-table th,
 .breakdown-table td {
-  border: 1px solid #bdc3c7;
-  padding: 0.4rem 0.7rem;
-  text-align: right;
-  font-family: monospace;
-  font-size: 0.9rem;
+  border: 1px solid #bdc3c7; padding: 0.4rem 0.7rem; text-align: right;
+  font-family: monospace; font-size: 0.9rem;
 }
-
-.breakdown-table th {
-  background-color: #dfe6e9;
-  text-align: center;
-}
-
-details summary {
-  cursor: pointer;
-  font-weight: 600;
-  margin-bottom: 0.5rem;
-}
-
-/* Responsive */
+.breakdown-table th { background-color: #dfe6e9; text-align: center; }
+details summary { cursor: pointer; font-weight: 600; margin-bottom: 0.5rem; }
+#scenarioList { margin-bottom: 0.8rem; }
+#scenarioList div { margin-bottom: 0.3rem; }
+#scenarioList button { margin-left: 0.5rem; }
+#scenarioDiffContainer table { margin-top: 1rem; }
 @media (max-width: 700px) {
-  label {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 0.3rem;
-  }
-  label input[type=number] {
-    width: 100%;
-  }
-  main {
-    padding: 1rem;
-  }
-  nav.tabs button {
-    font-size: 0.9rem;
-  }
-  .roi-controls {
-    flex-direction: column;
-    gap: 0.7rem;
-  }
+  label { flex-direction: column; align-items: flex-start; gap: 0.3rem; }
+  label input[type=number], label input[type=range] { width: 100%; }
+  main { padding: 1rem; }
+  nav.tabs button { font-size: 0.9rem; }
+  .roi-controls { flex-direction: column; gap: 0.7rem; }
 }
-
 #filesTab button {
-  background-color: #007bff;
-  color: white;
-  padding: 12px 20px;
-  border: none;
-  border-radius: 6px;
-  font-size: 16px;
-  cursor: pointer;
-  margin-top: 20px;
+  background-color: #007bff; color: white; padding: 12px 20px; border: none;
+  border-radius: 6px; font-size: 16px; cursor: pointer; margin-top: 20px;
 }
-
-#filesTab button:hover {
-  background-color: #0056b3;
-}
+#filesTab button:hover { background-color: #0056b3; }

@@ -1,0 +1,12 @@
+{
+  "name": "Padel Club Investment Planner",
+  "short_name": "PadelPlanner",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f8f9fa",
+  "theme_color": "#1abc9c",
+  "description": "Forecast and analyze padel/gym investments.",
+  "icons": [
+    { "src": "logo.png", "sizes": "192x192", "type": "image/png" }
+  ]
+}

@@ -1,6 +1,3 @@
-// Padel Club Investment Planner - Full Featured Script
-// Includes: Scenarios, Tornado, Export, Interactive Gantt, Summaries, Charts, etc.
-
 // --- Utility Functions & Variable Declarations ---
 function getNumberInputValue(id) {
   const el = document.getElementById(id);
@@ -139,21 +136,21 @@ window.calculateGym = function() {
   ]);
   let adjustedAnnualRevenue = totalAnnualRevenue;
   let rampSummary = "";
-if (document.getElementById('gymRamp').checked) {
-  const rampDuration = getNumberInputValue('rampDuration');
-  const rampEffect = getNumberInputValue('rampEffect') / 100;
-  const monthlyRevenue = totalAnnualRevenue / 12;
-  let totalRev = 0;
-  for (let i = 1; i <= 12; i++) {
-    if (i <= rampDuration) {
-      totalRev += monthlyRevenue * rampEffect;
-    } else {
-      totalRev += monthlyRevenue;
+  if (document.getElementById('gymRamp').checked) {
+    const rampDuration = getNumberInputValue('rampDuration');
+    const rampEffect = getNumberInputValue('rampEffect') / 100;
+    const monthlyRevenue = totalAnnualRevenue / 12;
+    let totalRev = 0;
+    for (let i = 1; i <= 12; i++) {
+      if (i <= rampDuration) {
+        totalRev += monthlyRevenue * rampEffect;
+      } else {
+        totalRev += monthlyRevenue;
+      }
     }
+    adjustedAnnualRevenue = totalRev;
+    rampSummary = `<p><b>Ramp-up:</b> First ${rampDuration} months at ${getNumberInputValue('rampEffect')}% revenue</p>`;
   }
-  adjustedAnnualRevenue = totalRev;
-  rampSummary = `<p><b>Ramp-up:</b> First ${rampDuration} months at ${getNumberInputValue('rampEffect')}% revenue</p>`;
-}
   const netProfit = adjustedAnnualRevenue - totalOpCosts - totalStaffCost;
   window.gymData = {
     revenue: adjustedAnnualRevenue,
@@ -593,9 +590,6 @@ window.exportExcel = function() {
 let ganttTasks = [];
 const ganttKey = 'userGanttTasks';
 let currentViewMode = 'Month';
-let ganttSortBy = null, ganttSortAsc = true;
-let ganttPage = 1, ganttPageSize = 10;
-let ganttSortable = null;
 
 // --- Gantt LocalStorage ---
 function loadGanttTasks() {
@@ -615,7 +609,7 @@ function saveGanttTasks() {
   localStorage.setItem(ganttKey, JSON.stringify(ganttTasks));
 }
 
-// --- Gantt Task List Render with Sorting, Pagination, DnD ---
+// --- Gantt Task List Render ---
 function renderGanttTaskList() {
   const list = document.getElementById('ganttTaskList');
   list.innerHTML = '';
@@ -635,78 +629,6 @@ function renderGanttTaskList() {
     list.appendChild(row);
   });
 }
-
-  // Sorting
-  let tasks = ganttTasks.slice();
-  if (ganttSortBy) {
-    tasks.sort((a, b) => {
-      if (a[ganttSortBy] < b[ganttSortBy]) return ganttSortAsc ? -1 : 1;
-      if (a[ganttSortBy] > b[ganttSortBy]) return ganttSortAsc ? 1 : -1;
-      return 0;
-    });
-  }
-
-  // Pagination
-  const startIdx = (ganttPage - 1) * ganttPageSize;
-  const pageData = tasks.slice(startIdx, startIdx + ganttPageSize);
-
-  let html = `<table><thead>
-    <tr>
-      <th onclick="ganttSort('name')">Name</th>
-      <th onclick="ganttSort('start')">Start</th>
-      <th onclick="ganttSort('end')">End</th>
-      <th onclick="ganttSort('progress')">Progress</th>
-      <th></th>
-    </tr></thead><tbody>`;
-  pageData.forEach(task => {
-    html += `<tr>
-      <td>${task.name}</td>
-      <td>${task.start}</td>
-      <td>${task.end}</td>
-      <td>${task.progress}%</td>
-      <td>
-        <button type="button" onclick="editGanttTask('${task.id}')">Edit</button>
-        <button type="button" onclick="deleteGanttTask('${task.id}')">Delete</button>
-      </td>
-    </tr>`;
-  });
-  html += `</tbody></table>`;
-
-  // Pagination controls
-  if (tasks.length > ganttPageSize) {
-    const totalPages = Math.ceil(tasks.length / ganttPageSize);
-    html += `<div class="gantt-pagination">`;
-    for (let p = 1; p <= totalPages; ++p) {
-      html += `<button ${ganttPage === p ? "class='active'" : ""} onclick="ganttGotoPage(${p})">${p}</button>`;
-    }
-    html += `</div>`;
-  }
-
-  div.innerHTML = html;
-
-  // Drag-and-drop sorting via SortableJS
-  if (window.Sortable && document.querySelector('#ganttTaskList tbody')) {
-    if (ganttSortable) ganttSortable.destroy();
-    ganttSortable = Sortable.create(document.querySelector('#ganttTaskList tbody'), {
-      animation: 150,
-      onEnd: function (evt) {
-        const srcIdx = startIdx + evt.oldIndex, dstIdx = startIdx + evt.newIndex;
-        ganttTasks.splice(dstIdx, 0, ganttTasks.splice(srcIdx, 1)[0]);
-        saveGanttTasks();
-        renderGanttTaskList();
-        drawGantt();
-      }
-    });
-  }
-}
-window.ganttSort = function (key) {
-  if (ganttSortBy === key) ganttSortAsc = !ganttSortAsc;
-  else { ganttSortBy = key; ganttSortAsc = true; }
-  renderGanttTaskList();
-};
-window.ganttGotoPage = function (p) {
-  ganttPage = p; renderGanttTaskList();
-};
 
 // --- Gantt Edit/Delete/Validation ---
 window.editGanttTask = function(id) {
@@ -740,12 +662,13 @@ document.getElementById('ganttTaskForm').onsubmit = function(e) {
   if (idx >= 0) {
     ganttTasks[idx] = { id, name, start, end, progress };
   } else {
-ganttTasks.push({ id, name, start, end, progress });
+    ganttTasks.push({ id, name, start, end, progress });
   }
   saveGanttTasks();
   renderGanttTaskList();
   drawGantt();
   this.reset();
+  document.getElementById('ganttEditId').value = '';
 };
 document.getElementById('ganttTaskResetBtn').onclick = function() {
   document.getElementById('ganttEditId').value = '';
@@ -803,6 +726,7 @@ function highlightToday() {
     }
   });
 }
+
 // --- Initialization ---
 window.onload = function () {
   document.querySelectorAll('nav.tabs button').forEach(btn => {

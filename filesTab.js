@@ -21,49 +21,94 @@ export function initFilesTab() {
     };
   }
 
+export function initFilesTab() {
+  const filesKey = 'uploadedFiles';
+  const container = document.getElementById('filesTabContent');
+  const form = document.getElementById('fileUploadForm');
+  const input = document.getElementById('fileInput');
+  // Modal
+  if (!document.getElementById('filePreviewModal')) {
+    const modal = document.createElement('div');
+    modal.id = 'filePreviewModal';
+    modal.innerHTML = `
+      <div id="filePreviewContent">
+        <button id="closePreviewBtn">Close</button>
+        <div id="filePreviewBody"></div>
+      </div>`;
+    document.body.appendChild(modal);
+    document.getElementById('closePreviewBtn').onclick = () => {
+      modal.style.display = 'none';
+      document.getElementById('filePreviewBody').innerHTML = '';
+    };
+  }
   function showPreview(file) {
     const previewBody = document.getElementById('filePreviewBody');
     previewBody.innerHTML = '';
-    // Images
     if (file.type.startsWith('image/')) {
-      previewBody.innerHTML = `<img src="${file.data}" alt="${file.name}" />`;
-    }
-    // PDF
-    else if (file.type === 'application/pdf') {
-      previewBody.innerHTML = `<embed src="${file.data}" type="application/pdf" style="width:100%;height:60vh;" />`;
-    }
-    // Text
-    else if (
-      file.type.startsWith('text/') ||
-      /\.(txt|md|csv|json)$/i.test(file.name)
-    ) {
+      previewBody.innerHTML = `<img src="${file.data}" alt="${file.name}" style="max-width:100%">`;
+    } else if (file.type === 'application/pdf') {
+      previewBody.innerHTML = `<embed src="${file.data}" type="application/pdf" style="width:100%;height:60vh;">`;
+    } else if (file.type.startsWith('text/') || /\.(txt|md|csv|json)$/i.test(file.name)) {
       fetch(file.data)
         .then(res => res.text())
-        .then(text => {
-          previewBody.innerHTML = `<pre>${text}</pre>`;
-        })
-        .catch(() => {
-          previewBody.innerHTML = `<p>Unable to preview text.</p>`;
-        });
-    }
-    // Audio
-    else if (file.type.startsWith('audio/')) {
-      previewBody.innerHTML = `<audio controls src="${file.data}" style="width:100%"></audio>`;
-    }
-    // Video
-    else if (file.type.startsWith('video/')) {
-      previewBody.innerHTML = `<video controls src="${file.data}" style="width:100%;max-height:60vh"></video>`;
-    }
-    // Fallback
-    else {
-      previewBody.innerHTML = `
-        <p><b>${file.name}</b></p>
-        <p>Preview not supported for this file type.</p>
-        <a href="${file.data}" download="${file.name}">Download</a>
-      `;
+        .then(text => { previewBody.innerHTML = `<pre>${text}</pre>`; })
+        .catch(() => { previewBody.innerHTML = `<p>Unable to preview text.</p>`; });
+    } else {
+      previewBody.innerHTML = `<p><b>${file.name}</b></p><a href="${file.data}" download="${file.name}">Download</a>`;
     }
     document.getElementById('filePreviewModal').style.display = 'block';
   }
+  function loadFiles() {
+    const files = JSON.parse(localStorage.getItem(filesKey) || '[]');
+    container.innerHTML = `<div class="file-list">${files.map((file, i) =>
+      `<div class="file-item">
+        <span>${file.name}</span>
+        <button type="button" class="preview-file-btn" data-idx="${i}">Preview</button>
+        <button type="button" class="delete-file-btn" data-name="${file.name}">Delete</button>
+      </div>`
+    ).join('')}</div>`;
+    container.querySelectorAll('.delete-file-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        let stored = JSON.parse(localStorage.getItem(filesKey) || '[]');
+        stored = stored.filter(f => f.name !== this.dataset.name);
+        localStorage.setItem(filesKey, JSON.stringify(stored));
+        loadFiles();
+      });
+    });
+    container.querySelectorAll('.preview-file-btn').forEach(btn => {
+      btn.addEventListener('click', function() {
+        const idx = this.dataset.idx;
+        showPreview(files[idx]);
+      });
+    });
+  }
+  form.addEventListener('submit', (e) => {
+    e.preventDefault();
+    const files = Array.from(input.files);
+    let stored = JSON.parse(localStorage.getItem(filesKey) || '[]');
+    let filesProcessed = 0;
+    if (!files.length) return;
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = function(ev) {
+        stored.push({
+          name: file.name,
+          type: file.type,
+          date: new Date().toISOString().slice(0,10),
+          data: ev.target.result
+        });
+        filesProcessed++;
+        if (filesProcessed === files.length) {
+          localStorage.setItem(filesKey, JSON.stringify(stored));
+          loadFiles();
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    input.value = "";
+  });
+  loadFiles();
+}
 
   function loadFiles() {
     const files = JSON.parse(localStorage.getItem(filesKey) || '[]');

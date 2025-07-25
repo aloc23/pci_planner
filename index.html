@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Padel Club Investment Planner</title>
+  <link rel="manifest" href="manifest.json" />
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -14,6 +15,7 @@
 </head>
 <body>
   <header>
+    <img src="logo.png" alt="Club Logo" id="clubLogo" />
     <h1>Padel Club Investment Planner</h1>
   </header>
   <nav class="tabs" role="tablist">
@@ -110,7 +112,6 @@
       <div id="gymSummary" class="summary"></div>
       <button id="calculateGymBtn">Calculate Gym</button>
     </section>
-    <!-- All other tabs as in previous answers... -->
     <section id="pnl" class="tab-content hidden">
       <h2>Profit &amp; Loss Statement</h2>
       <div class="section-group">
@@ -204,5 +205,10 @@
       <div id="filesTabContent"></div>
     </section>
   </main>
+  <script>
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js');
+    }
+  </script>
 </body>
 </html>

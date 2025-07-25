@@ -197,6 +197,69 @@ details summary {
   border-radius: 6px;
   box-shadow: 0 0 8px rgba(0,0,0,0.06);
 }
+.files-tab {
+  background: var(--file-bg);
+  padding: 1rem;
+  border-radius: 8px;
+  box-shadow: 0 0 6px rgba(0,0,0,0.05);
+}
+
+#fileUploadForm {
+  margin-bottom: 1rem;
+  display: flex;
+  gap: 1rem;
+  align-items: center;
+}
+
+#fileInput {
+  border: 1px solid #ccc;
+  border-radius: 6px;
+  padding: 0.3rem;
+}
+
+.file-list {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+.file-item {
+  background: var(--section-bg);
+  border-radius: 6px;
+  box-shadow: 0 0 3px rgba(0,0,0,0.04);
+  padding: 0.8rem;
+  display: flex;
+  align-items: center;
+  gap: 0.7rem;
+  transition: box-shadow 0.2s;
+}
+.file-item:hover {
+  box-shadow: 0 0 12px rgba(33,150,243,0.18);
+}
+.file-icon {
+  font-size: 2rem;
+  color: var(--file-icon);
+}
+.file-name {
+  flex-grow: 1;
+  font-weight: 600;
+}
+.file-type, .file-modified {
+  font-size: 0.9rem;
+  color: #888;
+}
+.files-tab button {
+  background: var(--main-color);
+  color: #fff;
+  border: none;
+  padding: 0.5rem 1.2rem;
+  border-radius: 5px;
+  cursor: pointer;
+  margin-left: 0.5rem;
+  transition: background 0.2s;
+}
+.files-tab button:hover {
+  background: var(--accent-color);
+}
 
 @media (max-width: 700px) {
   label {

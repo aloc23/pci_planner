@@ -47,8 +47,8 @@ function calculateStaffCosts(ids) {
 let pnlChart, profitTrendChart, costPieChart, roiLineChart, roiBarChart, roiPieChart, roiBreakEvenChart, tornadoChart;
 function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
 
-// --- Tab Navigation & Scroll ---
-function showTab(tabId) {
+// --- Tab Navigation ---
+window.showTab = function(tabId) {
   document.querySelectorAll('.tab-content').forEach(sec => {
     sec.classList.toggle('hidden', sec.id !== tabId);
   });
@@ -63,8 +63,7 @@ function showTab(tabId) {
   if (tabId === 'gantt') { renderGanttTaskList(); drawGantt(); }
   if (tabId === 'scenarios') { renderScenarioList(); renderScenarioDiff(); }
   if (tabId === 'files') initFilesTab();
-}
-window.showTab = showTab;
+};
 
 // --- Padel Calculation ---
 window.calculatePadel = function() {
@@ -293,8 +292,8 @@ window.updateRampEffectLabel = function(val) {
 function updateROI() {
   const padel = window.padelData || { revenue: 0, costs: 0, profit: 0 };
   const gym = gymIncludedROI() && window.gymData ? window.gymData : { revenue: 0, costs: 0, profit: 0 };
-  const revAdjust = getNumberInputValue('roiRevAdjust') / 100;
-  const costAdjust = getNumberInputValue('roiCostAdjust') / 100;
+  const revAdjust = getNumberInputValue('roiRevAdjust') / 100 || 1;
+  const costAdjust = getNumberInputValue('roiCostAdjust') / 100 || 1;
   const padelAdjProfit = (padel.revenue * revAdjust) - (padel.costs * costAdjust);
   const gymAdjProfit = (gym.revenue * revAdjust) - (gym.costs * costAdjust);
   const padelInvestment =
@@ -571,22 +570,22 @@ function generateSummaryReport() {
   });
 }
 // --- Export as PDF ---
-window.exportPDF = function() {
+document.getElementById('exportPDFBtn')?.addEventListener('click', function() {
   const { jsPDF } = window.jspdf;
   const doc = new jsPDF();
   doc.html(document.getElementById('reportContent'), {
     callback: function (pdf) { pdf.save("Investment_Summary.pdf"); },
     x: 10, y: 10
   });
-};
+});
 // --- Export as Excel ---
-window.exportExcel = function() {
+document.getElementById('exportExcelBtn')?.addEventListener('click', function() {
   const wb = XLSX.utils.book_new();
   const table = document.getElementById('monthlyBreakdown');
   const ws = XLSX.utils.table_to_sheet(table);
   XLSX.utils.book_append_sheet(wb, ws, "Monthly Breakdown");
   XLSX.writeFile(wb, "Investment_Breakdown.xlsx");
-};
+});
 
 // ------- Interactive Gantt: Add/Edit/Remove tasks, save in localStorage -------
 let ganttTasks = [];
@@ -663,10 +662,10 @@ document.getElementById('ganttTaskForm').onsubmit = function(e) {
   drawGantt();
   this.reset();
 };
-document.getElementById('ganttTaskResetBtn').onclick = function() {
+document.getElementById('ganttTaskResetBtn')?.addEventListener('click', function() {
   document.getElementById('ganttEditId').value = '';
   document.getElementById('ganttTaskForm').reset();
-};
+});
 function drawGantt() {
   loadGanttTasks();
   const ganttContainer = document.getElementById('ganttContainer');
@@ -686,17 +685,13 @@ window.onload = function () {
       showTab(this.dataset.tab || this.getAttribute('aria-controls'));
     });
   });
-  showTab('padel');
   document.getElementById('calculatePadelBtn')?.addEventListener('click', calculatePadel);
   document.getElementById('calculateGymBtn')?.addEventListener('click', calculateGym);
   document.getElementById('includeGym')?.addEventListener('change', updatePnL);
   document.getElementById('includeGymROI')?.addEventListener('change', updateROI);
-  document.getElementById('ganttTaskResetBtn')?.addEventListener('click', function() {
-    document.getElementById('ganttEditId').value = '';
-    document.getElementById('ganttTaskForm').reset();
-  });
   calculatePadel();
   calculateGym();
   renderScenarioList();
   renderScenarioDiff();
+  showTab('padel');
 };

@@ -343,3 +343,77 @@ button:hover {
     margin-top: 0.5em;
   }
 }
+.collapsible-section {
+  margin-bottom: 1.5em;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  background: #fff;
+}
+.collapsible-toggle {
+  background: none;
+  border: none;
+  width: 100%;
+  text-align: left;
+  font-size: 1.15em;
+  font-weight: bold;
+  padding: 0.75em 1em;
+  cursor: pointer;
+  border-bottom: 1px solid #eee;
+  outline: none;
+  transition: background 0.2s;
+  user-select: none;
+}
+.collapsible-toggle[aria-expanded="true"] {
+  background: #f6f8fa;
+}
+.collapsible-toggle[aria-expanded="false"] {
+  background: #fafcff;
+}
+.collapsible-content {
+  padding: 0 1em 1em 1em;
+  display: block;
+  animation: fadein 0.3s;
+}
+.collapsible-content.collapsed {
+  display: none;
+}
+@keyframes fadein {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.breakdown-table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+  margin: 1em 0;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+  border-radius: 8px;
+  overflow: hidden;
+}
+.breakdown-table th, .breakdown-table td {
+  padding: 0.75em 1em;
+  text-align: right;
+  border-bottom: 1px solid #f0f0f0;
+}
+.breakdown-table th {
+  background: #f6f8fa;
+  color: #222;
+  font-size: 1.05em;
+  font-weight: 600;
+  text-align: right;
+}
+.breakdown-table td:first-child,
+.breakdown-table th:first-child {
+  text-align: left;
+}
+.breakdown-table tr:nth-child(even) td {
+  background: #fcfcfc;
+}
+.breakdown-table tr:hover td {
+  background: #f1f7fd;
+}
+.breakdown-table tfoot td {
+  font-weight: bold;
+  background: #f3f7fa;
+}

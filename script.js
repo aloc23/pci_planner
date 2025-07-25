@@ -700,3 +700,10 @@ window.onload = function () {
   renderScenarioList();
   renderScenarioDiff();
 };
+import { initFilesTab } from './filesTab.js';
+
+window.onload = function () {
+  // ...existing tab init code...
+  initFilesTab();
+  // ...other initializations...
+};

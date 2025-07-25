@@ -155,26 +155,48 @@
         <label><input type="checkbox" id="includeGym" checked> Include Gym in PnL</label>
       </div>
       <div id="pnlSummary" class="summary"></div>
-      <div class="section-group">
-        <h3>Monthly Breakdown</h3>
-        <table id="monthlyBreakdown">
-          <thead><tr><th>Month</th><th>Revenue</th><th>Costs</th><th>Profit</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div class="section-group">
+<div class="collapsible-section">
+  <button type="button" class="collapsible-toggle" aria-expanded="true" aria-controls="monthlyBreakdownSection">
+    ▼ Monthly Breakdown
+  </button>
+  <div class="collapsible-content" id="monthlyBreakdownSection">
+    <table class="breakdown-table" id="monthlyBreakdown">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Revenue</th>
+          <th>Costs</th>
+          <th>Profit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- JS fills rows here -->
+      </tbody>
+    </table>
+  </div>
+</div>
         <h3>Cash Flow</h3>
-        <table id="cashFlowTable">
-          <thead><tr><th>Month</th><th>Opening</th><th>Inflow</th><th>Outflow</th><th>Closing</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
-      <div class="section-group">
-        <h3>Charts</h3>
-        <div><canvas id="pnlChart" height="180"></canvas></div>
-        <div><canvas id="profitTrendChart" height="180"></canvas></div>
-        <div><canvas id="costPieChart" height="180"></canvas></div>
-      </div>
+<div class="collapsible-section">
+  <button type="button" class="collapsible-toggle" aria-expanded="true" aria-controls="cashFlowSection">
+    ▼ Cash Flow
+  </button>
+  <div class="collapsible-content" id="cashFlowSection">
+    <table class="breakdown-table" id="cashFlowTable">
+      <thead>
+        <tr>
+          <th>Month</th>
+          <th>Opening</th>
+          <th>Inflow</th>
+          <th>Outflow</th>
+          <th>Closing</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- JS fills rows here -->
+      </tbody>
+    </table>
+  </div>
+</div>
     </section>
     <!-- ROI TAB -->
     <section id="roi" class="tab-content hidden">
@@ -186,13 +208,24 @@
       </div>
       <div id="yearsToROIText" class="summary"></div>
       <div id="roiKPIs" class="summary"></div>
-      <div class="section-group">
-        <h3>Payback Table</h3>
-        <table id="paybackTable">
-          <thead><tr><th>Year</th><th>Cumulative Profit</th></tr></thead>
-          <tbody></tbody>
-        </table>
-      </div>
+<div class="collapsible-section">
+  <button type="button" class="collapsible-toggle" aria-expanded="true" aria-controls="paybackSection">
+    ▼ Payback Table
+  </button>
+  <div class="collapsible-content" id="paybackSection">
+    <table class="breakdown-table" id="paybackTable">
+      <thead>
+        <tr>
+          <th>Year</th>
+          <th>Cumulative Profit</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- JS fills rows here -->
+      </tbody>
+    </table>
+  </div>
+</div>
       <div class="section-group">
         <h3>Charts</h3>
         <div><canvas id="roiLineChart" height="180"></canvas></div>

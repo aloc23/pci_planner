@@ -617,11 +617,24 @@ function saveGanttTasks() {
 
 // --- Gantt Task List Render with Sorting, Pagination, DnD ---
 function renderGanttTaskList() {
-  const div = document.getElementById('ganttTaskList');
-  if (!ganttTasks.length) {
-    div.innerHTML = '<em>No tasks. Add one above!</em>';
-    return;
-  }
+  const list = document.getElementById('ganttTaskList');
+  list.innerHTML = '';
+  ganttTasks.forEach(task => {
+    const row = document.createElement('div');
+    row.className = 'gantt-task-row';
+    row.innerHTML = `
+      <span class="gantt-task-name">${task.name}</span>
+      <span class="gantt-task-start">${task.start}</span>
+      <span class="gantt-task-end">${task.end}</span>
+      <span class="gantt-task-progress">${task.progress}%</span>
+      <div class="gantt-actions">
+        <button class="gantt-action-btn" onclick="editGanttTask('${task.id}')">Edit</button>
+        <button class="gantt-action-btn" onclick="deleteGanttTask('${task.id}')">Delete</button>
+      </div>
+    `;
+    list.appendChild(row);
+  });
+}
 
   // Sorting
   let tasks = ganttTasks.slice();

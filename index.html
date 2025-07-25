@@ -25,9 +25,9 @@
     <button type="button" data-tab="scenarios">Scenarios</button>
     <button type="button" data-tab="summary">Summary</button>
     <button type="button" data-tab="gantt">Gantt</button>
-    <button type="button" id="btnFiles" onclick="window.open('https://aloc23.github.io/pci_project_file_viewer/', '_blank')">Files</button>
-  </nav>
-  <main>
+    <button type="button" data-tab="files" id="filesTabBtn">Files</button>
+</nav>
+<main>
     <!-- Padel Tab -->
     <section id="padel" class="tab-content">
       <h2>Padel Investment &amp; Revenue</h2>
@@ -235,6 +235,14 @@
       <div id="ganttTaskList"></div>
       <div id="ganttContainer" style="margin-top:1rem"></div>
     </section>
-  </main>
+    <section id="files" class="tab-content hidden files-tab">
+    <h2>Files</h2>
+    <form id="fileUploadForm" enctype="multipart/form-data">
+      <input type="file" id="fileInput" multiple>
+      <button type="submit">Upload</button>
+    </form>
+    <div id="filesTabContent"></div>
+  </section>
+</main>
 </body>
 </html>

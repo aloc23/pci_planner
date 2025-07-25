@@ -139,20 +139,21 @@ window.calculateGym = function() {
   ]);
   let adjustedAnnualRevenue = totalAnnualRevenue;
   let rampSummary = "";
-  if (document.getElementById('gymRamp').checked) {
-    const rampDuration = getNumberInputValue('rampDuration');
-    const rampEffect = getNumberInputValue('rampEffect') / 100;
-    let totalRev = 0;
-    for (let i = 1; i <= 12; i++) {
-      if (i <= rampDuration) {
-        totalRev += totalAnnualRevenue * rampEffect;
-      } else {
-        totalRev += totalAnnualRevenue;
-      }
+if (document.getElementById('gymRamp').checked) {
+  const rampDuration = getNumberInputValue('rampDuration');
+  const rampEffect = getNumberInputValue('rampEffect') / 100;
+  const monthlyRevenue = totalAnnualRevenue / 12;
+  let totalRev = 0;
+  for (let i = 1; i <= 12; i++) {
+    if (i <= rampDuration) {
+      totalRev += monthlyRevenue * rampEffect;
+    } else {
+      totalRev += monthlyRevenue;
     }
-    adjustedAnnualRevenue = totalRev;
-    rampSummary = `<p><b>Ramp-up:</b> First ${rampDuration} months at ${getNumberInputValue('rampEffect')}% revenue</p>`;
   }
+  adjustedAnnualRevenue = totalRev;
+  rampSummary = `<p><b>Ramp-up:</b> First ${rampDuration} months at ${getNumberInputValue('rampEffect')}% revenue</p>`;
+}
   const netProfit = adjustedAnnualRevenue - totalOpCosts - totalStaffCost;
   window.gymData = {
     revenue: adjustedAnnualRevenue,

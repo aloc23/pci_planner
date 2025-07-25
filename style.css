@@ -360,27 +360,20 @@ button:hover {
   cursor: pointer;
   border-bottom: 1px solid #eee;
   outline: none;
+  color: #1976d2;
+  letter-spacing: 0.01em;
   transition: background 0.2s;
   user-select: none;
 }
-.collapsible-toggle[aria-expanded="true"] {
-  background: #eafaf1;
-}
-.collapsible-toggle[aria-expanded="false"] {
-  background: #eafaf1;
-}
+.collapsible-toggle[aria-expanded="true"] { background: #f6f8fa; }
+.collapsible-toggle[aria-expanded="false"] { background: #fafcff; }
 .collapsible-content {
   padding: 0 1em 1em 1em;
   display: block;
   animation: fadein 0.3s;
 }
-.collapsible-content.collapsed {
-  display: none;
-}
-@keyframes fadein {
-  from { opacity: 0; }
-  to { opacity: 1; }
-}
+.collapsible-content.collapsed { display: none; }
+@keyframes fadein { from { opacity: 0; } to { opacity: 1; } }
 .breakdown-table {
   width: 100%;
   border-collapse: separate;

@@ -1,5 +1,4 @@
-// Padel Club Investment Planner - Full Featured Script
-// Includes: Scenarios, Tornado, Export, Interactive Gantt, Summaries, Charts, etc.
+import { initFilesTab } from './filesTab.js';
 
 // --- Utility Functions & Variable Declarations ---
 function getNumberInputValue(id) {
@@ -63,6 +62,7 @@ function showTab(tabId) {
   if (tabId === 'summary') generateSummaryReport();
   if (tabId === 'gantt') { renderGanttTaskList(); drawGantt(); }
   if (tabId === 'scenarios') { renderScenarioList(); renderScenarioDiff(); }
+  if (tabId === 'files') initFilesTab();
 }
 window.showTab = showTab;
 
@@ -699,11 +699,4 @@ window.onload = function () {
   calculateGym();
   renderScenarioList();
   renderScenarioDiff();
-};
-import { initFilesTab } from './filesTab.js';
-
-window.onload = function () {
-  // ...existing tab init code...
-  initFilesTab();
-  // ...other initializations...
 };

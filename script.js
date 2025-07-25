@@ -806,8 +806,11 @@ window.onload = function () {
     document.getElementById('ganttEditId').value = '';
     document.getElementById('ganttTaskForm').reset();
   });
+  document.getElementById('exportGanttCSVBtn')?.addEventListener('click', exportGanttCSV);
   calculatePadel();
   calculateGym();
-  renderScenarioList();
-  renderScenarioDiff();
+  renderScenarioList?.();
+  renderScenarioDiff?.();
+  renderGanttTaskList();
+  drawGantt();
 };

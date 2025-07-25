@@ -752,3 +752,17 @@ window.onload = function () {
   renderGanttTaskList();
   drawGantt();
 };
+document.querySelectorAll('.collapsible-toggle').forEach(btn => {
+  btn.addEventListener('click', function() {
+    const expanded = this.getAttribute('aria-expanded') === 'true';
+    this.setAttribute('aria-expanded', String(!expanded));
+    const content = document.getElementById(this.getAttribute('aria-controls'));
+    if (expanded) {
+      content.classList.add('collapsed');
+      this.textContent = '► ' + this.textContent.replace(/^▼|^►/, '').trim();
+    } else {
+      content.classList.remove('collapsed');
+      this.textContent = '▼ ' + this.textContent.replace(/^▼|^►/, '').trim();
+    }
+  });
+});

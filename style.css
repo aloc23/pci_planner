@@ -4,8 +4,8 @@
   --danger-color: #c0392b;
   --bg-color: #f8f9fa;
   --section-bg: #ffffff;
-  --header-bg: #2c3e50;
-  --nav-bg: #34495e;
+  --header-bg: #76899b;
+  --nav-bg: #5d6d7d;
   --file-bg: #fffbe6;
   --file-icon: #f1c40f;
 }
@@ -364,10 +364,10 @@ button:hover {
   user-select: none;
 }
 .collapsible-toggle[aria-expanded="true"] {
-  background: #f6f8fa;
+  background: #eafaf1;
 }
 .collapsible-toggle[aria-expanded="false"] {
-  background: #fafcff;
+  background: #eafaf1;
 }
 .collapsible-content {
   padding: 0 1em 1em 1em;

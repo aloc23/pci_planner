@@ -524,15 +524,16 @@ document.getElementById('scenarioForm').onsubmit = (e) => {
 function generateSummaryReport() {
   const padel = window.padelData || {};
   const gym = gymIncluded() && window.gymData ? window.gymData : {};
-  document.getElementById('reportContent').innerHTML = `
-    <h3>Key Financials</h3>
-    <ul>
-      <li><b>Padel Revenue:</b> €${(padel.revenue || 0).toLocaleString()}</li>
-      <li><b>Padel Net Profit:</b> €${(padel.profit || 0).toLocaleString()}</li>
-      <li><b>Gym Revenue:</b> €${(gym.revenue || 0).toLocaleString()}</li>
-      <li><b>Gym Net Profit:</b> €${(gym.profit || 0).toLocaleString()}</li>
-      <li><b>Total Investment:</b> €${getTotalInvestment().toLocaleString()}</li>
-    </ul>
+ document.getElementById('reportContent').innerHTML = `
+  <h3>Key Financials</h3>
+  <ul>
+    <li><b>Padel Revenue:</b> €${(padel.revenue || 0).toLocaleString()}</li>
+    <li><b>Padel Net Profit:</b> €${(padel.profit || 0).toLocaleString()}</li>
+    <li><b>Gym Revenue:</b> €${(gym.revenue || 0).toLocaleString()}</li>
+    <li><b>Gym Net Profit:</b> €${(gym.profit || 0).toLocaleString()}</li>
+    ${document.getElementById('gymRamp')?.checked ? `<li><b>Ramp-Up:</b> ${getNumberInputValue('rampDuration')} months at ${getNumberInputValue('rampEffect')}%</li>` : ""}
+    <li><b>Total Investment:</b> €${getTotalInvestment().toLocaleString()}</li>
+  </ul>
     <div><canvas id="summaryPnL" height="150"></canvas></div>
     <div><canvas id="summaryROI" height="150"></canvas></div>
     <h3>Assumptions</h3>

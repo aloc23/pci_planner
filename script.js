@@ -727,7 +727,7 @@ document.getElementById('ganttTaskForm').onsubmit = function(e) {
   if (idx >= 0) {
     ganttTasks[idx] = { id, name, start, end, progress };
   } else {
-    ganttTasks.push({ id, name, start, end, progress };
+ganttTasks.push({ id, name, start, end, progress });
   }
   saveGanttTasks();
   renderGanttTaskList();

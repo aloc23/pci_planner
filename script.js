@@ -592,6 +592,12 @@ window.exportExcel = function() {
 // ------- Interactive Gantt: Add/Edit/Remove tasks, save in localStorage -------
 let ganttTasks = [];
 const ganttKey = 'userGanttTasks';
+let currentViewMode = 'Month';
+let ganttSortBy = null, ganttSortAsc = true;
+let ganttPage = 1, ganttPageSize = 10;
+let ganttSortable = null;
+
+// --- Gantt LocalStorage ---
 function loadGanttTasks() {
   const saved = localStorage.getItem(ganttKey);
   if (saved) {
@@ -608,14 +614,38 @@ function loadGanttTasks() {
 function saveGanttTasks() {
   localStorage.setItem(ganttKey, JSON.stringify(ganttTasks));
 }
+
+// --- Gantt Task List Render with Sorting, Pagination, DnD ---
 function renderGanttTaskList() {
   const div = document.getElementById('ganttTaskList');
   if (!ganttTasks.length) {
     div.innerHTML = '<em>No tasks. Add one above!</em>';
     return;
   }
-  let html = '<table><tr><th>Name</th><th>Start</th><th>End</th><th>Progress</th><th></th></tr>';
-  ganttTasks.forEach(task => {
+
+  // Sorting
+  let tasks = ganttTasks.slice();
+  if (ganttSortBy) {
+    tasks.sort((a, b) => {
+      if (a[ganttSortBy] < b[ganttSortBy]) return ganttSortAsc ? -1 : 1;
+      if (a[ganttSortBy] > b[ganttSortBy]) return ganttSortAsc ? 1 : -1;
+      return 0;
+    });
+  }
+
+  // Pagination
+  const startIdx = (ganttPage - 1) * ganttPageSize;
+  const pageData = tasks.slice(startIdx, startIdx + ganttPageSize);
+
+  let html = `<table><thead>
+    <tr>
+      <th onclick="ganttSort('name')">Name</th>
+      <th onclick="ganttSort('start')">Start</th>
+      <th onclick="ganttSort('end')">End</th>
+      <th onclick="ganttSort('progress')">Progress</th>
+      <th></th>
+    </tr></thead><tbody>`;
+  pageData.forEach(task => {
     html += `<tr>
       <td>${task.name}</td>
       <td>${task.start}</td>
@@ -627,9 +657,45 @@ function renderGanttTaskList() {
       </td>
     </tr>`;
   });
-  html += '</table>';
+  html += `</tbody></table>`;
+
+  // Pagination controls
+  if (tasks.length > ganttPageSize) {
+    const totalPages = Math.ceil(tasks.length / ganttPageSize);
+    html += `<div class="gantt-pagination">`;
+    for (let p = 1; p <= totalPages; ++p) {
+      html += `<button ${ganttPage === p ? "class='active'" : ""} onclick="ganttGotoPage(${p})">${p}</button>`;
+    }
+    html += `</div>`;
+  }
+
   div.innerHTML = html;
+
+  // Drag-and-drop sorting via SortableJS
+  if (window.Sortable && document.querySelector('#ganttTaskList tbody')) {
+    if (ganttSortable) ganttSortable.destroy();
+    ganttSortable = Sortable.create(document.querySelector('#ganttTaskList tbody'), {
+      animation: 150,
+      onEnd: function (evt) {
+        const srcIdx = startIdx + evt.oldIndex, dstIdx = startIdx + evt.newIndex;
+        ganttTasks.splice(dstIdx, 0, ganttTasks.splice(srcIdx, 1)[0]);
+        saveGanttTasks();
+        renderGanttTaskList();
+        drawGantt();
+      }
+    });
+  }
 }
+window.ganttSort = function (key) {
+  if (ganttSortBy === key) ganttSortAsc = !ganttSortAsc;
+  else { ganttSortBy = key; ganttSortAsc = true; }
+  renderGanttTaskList();
+};
+window.ganttGotoPage = function (p) {
+  ganttPage = p; renderGanttTaskList();
+};
+
+// --- Gantt Edit/Delete/Validation ---
 window.editGanttTask = function(id) {
   const t = ganttTasks.find(t => t.id === id);
   if (t) {
@@ -652,12 +718,16 @@ document.getElementById('ganttTaskForm').onsubmit = function(e) {
   const name = document.getElementById('ganttTaskName').value;
   const start = document.getElementById('ganttTaskStart').value;
   const end = document.getElementById('ganttTaskEnd').value;
+  if (new Date(start) > new Date(end)) {
+    alert('End date must be after start date.');
+    return;
+  }
   const progress = Number(document.getElementById('ganttTaskProgress').value);
   const idx = ganttTasks.findIndex(t => t.id === id);
   if (idx >= 0) {
     ganttTasks[idx] = { id, name, start, end, progress };
   } else {
-    ganttTasks.push({ id, name, start, end, progress });
+    ganttTasks.push({ id, name, start, end, progress };
   }
   saveGanttTasks();
   renderGanttTaskList();
@@ -668,6 +738,27 @@ document.getElementById('ganttTaskResetBtn').onclick = function() {
   document.getElementById('ganttEditId').value = '';
   document.getElementById('ganttTaskForm').reset();
 };
+
+// --- Gantt View Modes ---
+window.setGanttViewMode = function(mode) {
+  currentViewMode = mode;
+  drawGantt();
+};
+
+// --- Gantt Export CSV ---
+window.exportGanttCSV = function() {
+  let csv = "Name,Start,End,Progress\n";
+  ganttTasks.forEach(t => {
+    csv += `${t.name},${t.start},${t.end},${t.progress}\n`;
+  });
+  const blob = new Blob([csv], { type: "text/csv" });
+  const link = document.createElement("a");
+  link.href = URL.createObjectURL(blob);
+  link.download = "Gantt_Tasks.csv";
+  link.click();
+};
+
+// --- Gantt Draw & Inline Progress, Highlight Today ---
 function drawGantt() {
   loadGanttTasks();
   const ganttContainer = document.getElementById('ganttContainer');
@@ -676,10 +767,29 @@ function drawGantt() {
   ganttDiv.id = "ganttChartDiv";
   ganttContainer.appendChild(ganttDiv);
   if (ganttTasks.length > 0) {
-    new Gantt("#ganttChartDiv", ganttTasks, { view_mode: 'Month' });
+    const gantt = new Gantt("#ganttChartDiv", ganttTasks, {
+      view_mode: currentViewMode,
+      on_progress_change: (task, progress) => {
+        const idx = ganttTasks.findIndex(t => t.id === task.id);
+        if (idx >= 0) {
+          ganttTasks[idx].progress = progress;
+          saveGanttTasks();
+          renderGanttTaskList();
+        }
+      }
+    });
+    setTimeout(highlightToday, 100);
   }
 }
-
+function highlightToday() {
+  const today = new Date().toISOString().slice(0, 10);
+  const labels = document.querySelectorAll('.gantt .grid .grid-row .grid-date');
+  labels.forEach(label => {
+    if (label.dataset && label.dataset.date === today) {
+      label.classList.add('gantt-today-highlight');
+    }
+  });
+}
 // --- Initialization ---
 window.onload = function () {
   document.querySelectorAll('nav.tabs button').forEach(btn => {

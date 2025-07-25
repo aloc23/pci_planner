@@ -222,27 +222,27 @@
       <div id="reportContent"></div>
     </section>
     <!-- GANTT TAB -->
-    <section id="gantt" class="tab-content hidden">
-      <h2>Gantt Chart</h2>
-      <div id="ganttViewModes">
-        <button type="button" onclick="setGanttViewMode('Day')">Day</button>
-        <button type="button" onclick="setGanttViewMode('Week')">Week</button>
-        <button type="button" onclick="setGanttViewMode('Month')">Month</button>
-        <button type="button" onclick="setGanttViewMode('Year')">Year</button>
-        <button type="button" id="exportGanttCSVBtn" onclick="exportGanttCSV()">Export CSV</button>
-      </div>
-      <form id="ganttTaskForm">
-        <input id="ganttEditId" type="hidden">
-        <label>Task Name: <input id="ganttTaskName" type="text" required></label>
-        <label>Start: <input id="ganttTaskStart" type="date" required></label>
-        <label>End: <input id="ganttTaskEnd" type="date" required></label>
-        <label>Progress (%): <input id="ganttTaskProgress" type="number" min="0" max="100" value="0"></label>
-        <button type="submit">Save</button>
-        <button type="button" id="ganttTaskResetBtn">Reset</button>
-      </form>
-      <div id="ganttTaskList"></div>
-      <div id="ganttContainer" style="margin-top:1rem"></div>
-    </section>
+<section id="gantt" class="tab-content hidden">
+  <h2>Gantt Chart</h2>
+  <div id="ganttViewModes">
+    <button type="button" onclick="setGanttViewMode('Day')">Day</button>
+    <button type="button" onclick="setGanttViewMode('Week')">Week</button>
+    <button type="button" onclick="setGanttViewMode('Month')">Month</button>
+    <button type="button" onclick="setGanttViewMode('Year')">Year</button>
+    <button type="button" id="exportGanttCSVBtn" onclick="exportGanttCSV()">Export CSV</button>
+  </div>
+  <form id="ganttTaskForm">
+    <input id="ganttEditId" type="hidden">
+    <label>Task Name: <input id="ganttTaskName" type="text" required></label>
+    <label>Start: <input id="ganttTaskStart" type="date" required></label>
+    <label>End: <input id="ganttTaskEnd" type="date" required></label>
+    <label>Progress (%): <input id="ganttTaskProgress" type="number" min="0" max="100" value="0"></label>
+    <button type="submit">Save</button>
+    <button type="button" id="ganttTaskResetBtn">Reset</button>
+  </form>
+  <div id="ganttTaskList"></div>
+  <div id="ganttContainer" style="margin-top:1rem"></div>
+</section>
   </main>
 </body>
 </html>

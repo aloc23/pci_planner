@@ -26,6 +26,7 @@ header {
 
 #clubLogo {
   height: 50px;
+   align-items: center;
 }
 
 .tabs {

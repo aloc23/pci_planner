@@ -272,7 +272,9 @@ function getTotalInvestment() {
     getNumberInputValue('padelAmenities') +
     getNumberInputValue('gymEquip') +
     getNumberInputValue('gymFloor') +
-    getNumberInputValue('gymAmen')
+    getNumberInputValue('gymAmen') +
+    getNumberInputValue('landPurchaseCost') +
+    getNumberInputValue('buildingPurchaseCost')
   );
 }
 
@@ -304,7 +306,10 @@ function updateROI() {
     getNumberInputValue('gymEquip') +
     getNumberInputValue('gymFloor') +
     getNumberInputValue('gymAmen');
-  const totalInvestment = padelInvestment + (gymIncludedROI() ? gymInvestment : 0);
+  const landPurchaseCost = getNumberInputValue('landPurchaseCost');
+  const buildingPurchaseCost = getNumberInputValue('buildingPurchaseCost');
+  const propertyPurchaseInvestment = landPurchaseCost + buildingPurchaseCost;
+  const totalInvestment = padelInvestment + (gymIncludedROI() ? gymInvestment : 0) + propertyPurchaseInvestment;
   const annualProfit = padelAdjProfit + (gymIncludedROI() ? gymAdjProfit : 0);
   const paybackYears = annualProfit > 0 ? Math.ceil(totalInvestment / annualProfit) : '∞';
   document.getElementById('yearsToROIText').innerHTML = `<div class="roi-summary">Estimated Payback Period: <b>${paybackYears} year(s)</b></div>`;
@@ -358,10 +363,10 @@ function updateROI() {
   roiPieChart = new Chart(ctxRoiPie, {
     type: 'pie',
     data: {
-      labels: ['Padel Investment', 'Gym Investment'],
+      labels: ['Padel Investment', 'Gym Investment', 'Property Purchase'],
       datasets: [{
-        data: [padelInvestment, gymIncludedROI() ? gymInvestment : 0],
-        backgroundColor: ['#c0392b', '#2980b9']
+        data: [padelInvestment, gymIncludedROI() ? gymInvestment : 0, propertyPurchaseInvestment],
+        backgroundColor: ['#c0392b', '#2980b9', '#8e44ad']
       }]
     },
     options: { responsive: true, maintainAspectRatio: false }
@@ -448,7 +453,7 @@ function drawTornadoChart() {
 
 // --- Scenario Management ---
 function getScenarioState() {
-  const ids = padelInputIds.concat(gymInputIds);
+  const ids = padelInputIds.concat(gymInputIds, ['landPurchaseCost', 'buildingPurchaseCost']);
   const state = {};
   ids.forEach(id => state[id] = getNumberInputValue(id));
   state['roiRevAdjust'] = getNumberInputValue('roiRevAdjust');
@@ -532,6 +537,8 @@ function generateSummaryReport() {
     <li><b>Gym Revenue:</b> €${(gym.revenue || 0).toLocaleString()}</li>
     <li><b>Gym Net Profit:</b> €${(gym.profit || 0).toLocaleString()}</li>
     ${document.getElementById('gymRamp')?.checked ? `<li><b>Ramp-Up:</b> ${getNumberInputValue('rampDuration')} months at ${getNumberInputValue('rampEffect')}%</li>` : ""}
+    <li><b>Land Purchase Cost:</b> €${getNumberInputValue('landPurchaseCost').toLocaleString()}</li>
+    <li><b>Building Purchase Cost:</b> €${getNumberInputValue('buildingPurchaseCost').toLocaleString()}</li>
     <li><b>Total Investment:</b> €${getTotalInvestment().toLocaleString()}</li>
   </ul>
     <div><canvas id="summaryPnL" height="150"></canvas></div>
@@ -557,13 +564,14 @@ function generateSummaryReport() {
   window.summaryROIChart = new Chart(document.getElementById('summaryROI').getContext('2d'), {
     type: 'pie',
     data: {
-      labels: ['Padel Investment', 'Gym Investment'],
+      labels: ['Padel Investment', 'Gym Investment', 'Property Purchase'],
       datasets: [{
         data: [
           getNumberInputValue('padelGround') + getNumberInputValue('padelStructure') + (getNumberInputValue('padelCourts') * getNumberInputValue('padelCourtCost')) + getNumberInputValue('padelAmenities'),
-          gymIncluded() ? (getNumberInputValue('gymEquip') + getNumberInputValue('gymFloor') + getNumberInputValue('gymAmen')) : 0
+          gymIncluded() ? (getNumberInputValue('gymEquip') + getNumberInputValue('gymFloor') + getNumberInputValue('gymAmen')) : 0,
+          getNumberInputValue('landPurchaseCost') + getNumberInputValue('buildingPurchaseCost')
         ],
-        backgroundColor: ['#f39c12', '#3498db']
+        backgroundColor: ['#f39c12', '#3498db', '#8e44ad']
       }]
     },
     options: { responsive: true, maintainAspectRatio: false }
@@ -740,6 +748,9 @@ window.onload = function () {
   document.getElementById('calculateGymBtn')?.addEventListener('click', calculateGym);
   document.getElementById('includeGym')?.addEventListener('change', updatePnL);
   document.getElementById('includeGymROI')?.addEventListener('change', updateROI);
+  ['landPurchaseCost', 'buildingPurchaseCost'].forEach(id => {
+    document.getElementById(id)?.addEventListener('input', updateROI);
+  });
   document.getElementById('ganttTaskResetBtn')?.addEventListener('click', function() {
     document.getElementById('ganttEditId').value = '';
     document.getElementById('ganttTaskForm').reset();

@@ -208,6 +208,11 @@
     <section id="roi" class="tab-content hidden">
       <h2>ROI &amp; Payback</h2>
       <div class="section-group">
+        <h3>Property Purchase Costs</h3>
+        <label>Land Purchase Cost: <input id="landPurchaseCost" type="number" min="0" step="1000" value="0"></label>
+        <label>Building Purchase Cost: <input id="buildingPurchaseCost" type="number" min="0" step="1000" value="0"></label>
+      </div>
+      <div class="section-group">
         <label><input type="checkbox" id="includeGymROI" checked> Include Gym in ROI</label>
         <label>Revenue Adjust (%): <input id="roiRevAdjust" type="range" min="0" max="150" value="100" step="1" oninput="roiRevAdjustLabel.textContent=this.value+'%';updateROI()"><span id="roiRevAdjustLabel">100%</span></label>
         <label>Cost Adjust (%): <input id="roiCostAdjust" type="range" min="0" max="200" value="100" step="1" oninput="roiCostAdjustLabel.textContent=this.value+'%';updateROI()"><span id="roiCostAdjustLabel">100%</span></label>

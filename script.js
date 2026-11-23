@@ -17,7 +17,7 @@ const padelInputIds = [
   'padelGround', 'padelStructure', 'padelCourts', 'padelCourtCost', 'padelAmenities',
   'padelPeakHours', 'padelPeakRate', 'padelPeakUtil', 'padelOffHours', 'padelOffRate', 'padelOffUtil',
   'padelDays', 'padelWeeks', 'padelUtil', 'padelInsure', 'padelMaint', 'padelMarket', 'padelAdmin',
-  'padelClean', 'padelMisc', 'padelFtMgr', 'padelFtMgrSal', 'padelFtRec', 'padelFtRecSal', 'padelFtCoach',
+  'padelClean', 'padelMisc', 'padelFtMgr', 'padelFtMgrSal', 'padelFtCoach',
   'padelFtCoachSal', 'padelPtCoach', 'padelPtCoachSal', 'padelAddStaff', 'padelAddStaffSal'
 ];
 const gymInputIds = [
@@ -26,6 +26,7 @@ const gymInputIds = [
   'gymMaint', 'gymMarket', 'gymAdmin', 'gymClean', 'gymMisc',
   'gymFtTrainer', 'gymFtTrainerSal', 'gymPtTrainer', 'gymPtTrainerSal', 'gymAddStaff', 'gymAddStaffSal'
 ];
+const sharedStaffInputIds = ['padelFtRec', 'padelFtRecSal', 'receptionPt', 'receptionPtSal', 'directorCount', 'directorSalary'];
 function calculateOperationCosts(prefix) {
   return (
     getNumberInputValue(`${prefix}Util`) +
@@ -45,13 +46,26 @@ function calculateStaffCosts(ids) {
 function updateStaffSummary() {
   const padel = window.padelData?.staffCost || 0;
   const gym = window.gymData?.staffCost || 0;
+  const { reception, directors } = window.sharedStaffData || { reception: 0, directors: 0 };
   const format = value => value.toLocaleString(undefined, { maximumFractionDigits: 2 });
   document.getElementById('staffSummary').innerHTML = `
     <h3>Annual Staff Costs</h3>
+    <p>Reception (shared): €${format(reception)}</p>
     <p>Padel: €${format(padel)}</p>
     <p>Gym: €${format(gym)}</p>
-    <p>Total (Padel and Gym): €${format(padel + gym)}</p>
+    <p>Directors (shared): €${format(directors)}</p>
+    <p>Total: €${format(padel + gym + reception + directors)}</p>
   `;
+}
+function updateSharedStaff() {
+  const errors = validateInputs(sharedStaffInputIds);
+  if (errors.length) { alert(errors.join('\n')); return; }
+  const reception = calculateStaffCosts([['padelFtRec', 'padelFtRecSal'], ['receptionPt', 'receptionPtSal']]);
+  const directors = calculateStaffCosts([['directorCount', 'directorSalary']]);
+  window.sharedStaffData = { reception, directors, total: reception + directors };
+  updateStaffSummary();
+  updatePnL();
+  updateROI();
 }
 let pnlChart, profitTrendChart, costPieChart, roiLineChart, roiBarChart, roiPieChart, roiBreakEvenChart, tornadoChart;
 function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
@@ -91,7 +105,6 @@ window.calculatePadel = function() {
   const totalOpCosts = calculateOperationCosts('padel');
   const totalStaffCost = calculateStaffCosts([
     ['padelFtMgr', 'padelFtMgrSal'],
-    ['padelFtRec', 'padelFtRecSal'],
     ['padelFtCoach', 'padelFtCoachSal'],
     ['padelPtCoach', 'padelPtCoachSal'],
     ['padelAddStaff', 'padelAddStaffSal'],
@@ -125,7 +138,7 @@ window.calculatePadel = function() {
     <p><b>Total Revenue:</b> €${totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     <p><b>Operational Costs:</b> €${totalOpCosts.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     <p><b>Staff Costs:</b> €${totalStaffCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-    <p><b>Net Profit:</b> €${netProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+    <p><b>Net Profit (before shared staff costs):</b> €${netProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     ${utilBreakdown}
   `;
   updateStaffSummary();
@@ -179,7 +192,7 @@ window.calculateGym = function() {
     <p><b>Annual Revenue:</b> €${adjustedAnnualRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     <p><b>Operational Costs:</b> €${totalOpCosts.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     <p><b>Staff Costs:</b> €${totalStaffCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-    <p><b>Net Profit:</b> €${netProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+    <p><b>Net Profit (before shared staff costs):</b> €${netProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     ${rampSummary}
   `;
   updateStaffSummary();
@@ -197,13 +210,15 @@ function gymIncludedROI() {
 function updatePnL() {
   const padel = window.padelData || { revenue: 0, costs: 0, profit: 0, monthlyRevenue: 0, monthlyCosts: 0, monthlyProfit: 0 };
   const gym = gymIncluded() && window.gymData ? window.gymData : { revenue: 0, costs: 0, profit: 0, monthlyRevenue: 0, monthlyCosts: 0, monthlyProfit: 0 };
+  const sharedStaff = window.sharedStaffData?.total || 0;
   const totalRevenue = padel.revenue + gym.revenue;
-  const totalCosts = padel.costs + gym.costs;
-  const totalProfit = padel.profit + gym.profit;
+  const totalCosts = padel.costs + gym.costs + sharedStaff;
+  const totalProfit = padel.profit + gym.profit - sharedStaff;
   const summaryDiv = document.getElementById('pnlSummary');
   summaryDiv.innerHTML = `
     <p><b>Total Revenue:</b> €${Math.round(totalRevenue).toLocaleString('en-US')}</p>
     <p><b>Total Costs:</b> €${Math.round(totalCosts).toLocaleString('en-US')}</p>
+    <p><b>Shared Staff Costs:</b> €${Math.round(sharedStaff).toLocaleString('en-US')}</p>
     <p><b>Net Profit:</b> €${Math.round(totalProfit).toLocaleString('en-US')}</p>
   `;
   // Monthly breakdown
@@ -211,8 +226,8 @@ function updatePnL() {
   tbody.innerHTML = '';
   for (let i = 1; i <= 12; i++) {
     const rev = (padel.monthlyRevenue + gym.monthlyRevenue);
-    const costs = (padel.monthlyCosts + gym.monthlyCosts);
-    const profit = (padel.monthlyProfit + gym.monthlyProfit);
+    const costs = (padel.monthlyCosts + gym.monthlyCosts + sharedStaff / 12);
+    const profit = (padel.monthlyProfit + gym.monthlyProfit - sharedStaff / 12);
     const row = `<tr><td>${i}</td><td>€${rev.toFixed(2)}</td><td>€${costs.toFixed(2)}</td><td>€${profit.toFixed(2)}</td></tr>`;
     tbody.insertAdjacentHTML('beforeend', row);
   }
@@ -222,7 +237,7 @@ function updatePnL() {
   cashFlowBody.innerHTML = '';
   for (let i = 1; i <= 12; i++) {
     const inflow = (padel.monthlyRevenue + gym.monthlyRevenue);
-    const outflow = (padel.monthlyCosts + gym.monthlyCosts);
+    const outflow = (padel.monthlyCosts + gym.monthlyCosts + sharedStaff / 12);
     const closing = opening + inflow - outflow;
     cashFlowBody.insertAdjacentHTML('beforeend',
       `<tr><td>${i}</td><td>€${opening.toFixed(2)}</td><td>€${inflow.toFixed(2)}</td><td>€${outflow.toFixed(2)}</td><td>€${closing.toFixed(2)}</td></tr>`);
@@ -270,10 +285,10 @@ function updatePnL() {
   costPieChart = new Chart(ctxCostPie, {
     type: 'pie',
     data: {
-      labels: ['Padel Costs', 'Gym Costs'],
+      labels: ['Padel Costs', 'Gym Costs', 'Shared Staff Costs'],
       datasets: [{
-        data: [padel.costs, gym.costs],
-        backgroundColor: ['#f39c12', '#3498db']
+        data: [padel.costs, gym.costs, sharedStaff],
+        backgroundColor: ['#f39c12', '#3498db', '#8e44ad']
       }]
     },
     options: { responsive: true, maintainAspectRatio: false }
@@ -310,6 +325,7 @@ function updateROI() {
   const gym = gymIncludedROI() && window.gymData ? window.gymData : { revenue: 0, costs: 0, profit: 0 };
   const revAdjust = getNumberInputValue('roiRevAdjust') / 100;
   const costAdjust = getNumberInputValue('roiCostAdjust') / 100;
+  const sharedStaffAdjCost = (window.sharedStaffData?.total || 0) * costAdjust;
   const padelAdjProfit = (padel.revenue * revAdjust) - (padel.costs * costAdjust);
   const gymAdjProfit = (gym.revenue * revAdjust) - (gym.costs * costAdjust);
   const padelInvestment =
@@ -325,7 +341,7 @@ function updateROI() {
   const buildingPurchaseCost = getNumberInputValue('buildingPurchaseCost');
   const propertyPurchaseInvestment = landPurchaseCost + buildingPurchaseCost;
   const totalInvestment = padelInvestment + (gymIncludedROI() ? gymInvestment : 0) + propertyPurchaseInvestment;
-  const annualProfit = padelAdjProfit + (gymIncludedROI() ? gymAdjProfit : 0);
+  const annualProfit = padelAdjProfit + (gymIncludedROI() ? gymAdjProfit : 0) - sharedStaffAdjCost;
   const paybackYears = annualProfit > 0 ? Math.ceil(totalInvestment / annualProfit) : '∞';
   document.getElementById('yearsToROIText').innerHTML = `<div class="roi-summary">Estimated Payback Period: <b>${paybackYears} year(s)</b></div>`;
   let cumulativeProfit = 0;
@@ -364,11 +380,11 @@ function updateROI() {
   roiBarChart = new Chart(ctxRoiBar, {
     type: 'bar',
     data: {
-      labels: ['Padel', 'Gym'],
+      labels: ['Padel', 'Gym', 'Shared Staff Costs'],
       datasets: [{
         label: 'Annual Profit (€)',
-        data: [padelAdjProfit, gymIncludedROI() ? gymAdjProfit : 0],
-        backgroundColor: ['#e67e22', '#2980b9']
+        data: [padelAdjProfit, gymIncludedROI() ? gymAdjProfit : 0, -sharedStaffAdjCost],
+        backgroundColor: ['#e67e22', '#2980b9', '#8e44ad']
       }]
     },
     options: { responsive: true, maintainAspectRatio: false }
@@ -468,7 +484,7 @@ function drawTornadoChart() {
 
 // --- Scenario Management ---
 function getScenarioState() {
-  const ids = padelInputIds.concat(gymInputIds, ['landPurchaseCost', 'buildingPurchaseCost']);
+  const ids = padelInputIds.concat(gymInputIds, sharedStaffInputIds, ['landPurchaseCost', 'buildingPurchaseCost']);
   const state = {};
   ids.forEach(id => state[id] = getNumberInputValue(id));
   state['roiRevAdjust'] = getNumberInputValue('roiRevAdjust');
@@ -477,9 +493,13 @@ function getScenarioState() {
   return state;
 }
 function setScenarioState(state) {
+  ['receptionPt', 'receptionPtSal', 'directorCount', 'directorSalary'].forEach(id => {
+    document.getElementById(id).value = state[id] ?? 0;
+  });
   Object.keys(state).forEach(id => {
     if (document.getElementById(id)) document.getElementById(id).value = state[id];
   });
+  updateSharedStaff();
   calculatePadel();
   calculateGym();
   updateROI();
@@ -548,9 +568,11 @@ function generateSummaryReport() {
   <h3>Key Financials</h3>
   <ul>
     <li><b>Padel Revenue:</b> €${(padel.revenue || 0).toLocaleString()}</li>
-    <li><b>Padel Net Profit:</b> €${(padel.profit || 0).toLocaleString()}</li>
+    <li><b>Padel Net Profit (before shared staff):</b> €${(padel.profit || 0).toLocaleString()}</li>
     <li><b>Gym Revenue:</b> €${(gym.revenue || 0).toLocaleString()}</li>
-    <li><b>Gym Net Profit:</b> €${(gym.profit || 0).toLocaleString()}</li>
+    <li><b>Gym Net Profit (before shared staff):</b> €${(gym.profit || 0).toLocaleString()}</li>
+    <li><b>Shared Staff Costs:</b> €${(window.sharedStaffData?.total || 0).toLocaleString()}</li>
+    <li><b>Combined Net Profit:</b> €${((padel.profit || 0) + (gym.profit || 0) - (window.sharedStaffData?.total || 0)).toLocaleString()}</li>
     ${document.getElementById('gymRamp')?.checked ? `<li><b>Ramp-Up:</b> ${getNumberInputValue('rampDuration')} months at ${getNumberInputValue('rampEffect')}%</li>` : ""}
     <li><b>Land Purchase Cost:</b> €${getNumberInputValue('landPurchaseCost').toLocaleString()}</li>
     <li><b>Building Purchase Cost:</b> €${getNumberInputValue('buildingPurchaseCost').toLocaleString()}</li>
@@ -571,8 +593,8 @@ function generateSummaryReport() {
   window.summaryPnLChart = new Chart(document.getElementById('summaryPnL').getContext('2d'), {
     type: 'bar',
     data: {
-      labels: ['Padel Profit', 'Gym Profit'],
-      datasets: [{label: 'Net Profit', data: [padel.profit || 0, gymIncluded() ? (gym.profit || 0) : 0], backgroundColor: ['#4caf50', '#2980b9']}]
+      labels: ['Padel Profit', 'Gym Profit', 'Shared Staff Costs'],
+      datasets: [{label: 'Net Profit', data: [padel.profit || 0, gymIncluded() ? (gym.profit || 0) : 0, -(window.sharedStaffData?.total || 0)], backgroundColor: ['#4caf50', '#2980b9', '#8e44ad']}]
     },
     options: { responsive: true, maintainAspectRatio: false }
   });
@@ -765,6 +787,8 @@ window.onload = function () {
   document.getElementById('includeGymROI')?.addEventListener('change', updateROI);
   document.getElementById('padelStaff').addEventListener('change', calculatePadel);
   document.getElementById('gymStaff').addEventListener('change', calculateGym);
+  document.getElementById('receptionStaff').addEventListener('change', updateSharedStaff);
+  document.getElementById('directorStaff').addEventListener('change', updateSharedStaff);
   ['landPurchaseCost', 'buildingPurchaseCost'].forEach(id => {
     document.getElementById(id)?.addEventListener('input', updateROI);
   });
@@ -773,6 +797,7 @@ window.onload = function () {
     document.getElementById('ganttTaskForm').reset();
   });
   document.getElementById('exportGanttCSVBtn')?.addEventListener('click', exportGanttCSV);
+  updateSharedStaff();
   calculatePadel();
   calculateGym();
   renderScenarioList?.();

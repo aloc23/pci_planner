@@ -14,6 +14,8 @@ function createPlanner() {
         id, value: '', checked: false, innerHTML: '', textContent: '', handlers: {},
         classList: { toggle() {} },
         addEventListener(event, handler) { this.handlers[event] = handler; },
+        setCustomValidity(message) { this.validationMessage = message; },
+        reportValidity() {},
         insertAdjacentHTML(_position, content) { this.innerHTML += content; },
         getContext() { return {}; },
         appendChild() {}
@@ -98,8 +100,8 @@ test('saved scenarios preserve old reception values and reset new shared fields 
   const current = p.getScenarioState();
   p.setScenarioState(legacy);
   assert.equal(p.sharedStaffData.total, 60000);
-  assert.equal(el('directorCount').value, 0);
-  assert.equal(el('receptionPt').value, 0);
+  assert.equal(el('directorCount').value, '0');
+  assert.equal(el('receptionPt').value, '0');
   p.setScenarioState(current);
   assert.equal(p.sharedStaffData.total, 140000);
 });
@@ -147,4 +149,81 @@ test('ROI distinguishes cumulative profit return from net return on investment',
   p.updateROI();
   assert.match(el('roiKPIs').innerHTML, /Year 1<\/td><td>N\/A<\/td><td>N\/A/);
   assert.match(el('roiKPIs').innerHTML, /initial investment is zero/);
+});
+
+test('gym ramp affects individual months and the lease reduces cash flow and ROI', () => {
+  const { context: p, element: el } = createPlanner();
+  el('openingCash').value = '12000';
+  el('investorLease').value = '120000';
+  el('investorLease').handlers.change();
+  el('gymRamp').checked = true;
+  el('rampDuration').value = '3';
+  el('rampEffect').value = '40';
+  el('gymRamp').handlers.change();
+
+  assert.equal(p.gymData.revenue, 695980);
+  assert.match(el('pnlSummary').innerHTML, /399,000/);
+  const rows = el('#monthlyBreakdown tbody').innerHTML.match(/<tr>.*?<\/tr>/g);
+  assert.match(rows[0], /€65093\.33/);
+  assert.match(rows[2], /€65093\.33/);
+  assert.match(rows[3], /€106033\.33/);
+  assert.ok(Math.abs(vm.runInContext('profitTrendChart.config.data.datasets[0].data[0]', p) - (65093.3333333333 - 33250)) < 0.001);
+  assert.match(el('#cashFlowTable tbody').innerHTML, /<tr><td>1<\/td><td>€12000\.00<\/td><td>€65093\.33<\/td><td>€33250\.00<\/td><td>€43843\.33/);
+  assert.match(el('investmentFundingSummary').textContent, /655,000/);
+  assert.match(el('roiKPIs').innerHTML, /investor-funded setup cost/);
+  assert.equal(vm.runInContext('roiBarChart.config.data.datasets[0].data[3]', p), -120000);
+  el('includeGym').checked = false;
+  p.updatePnL();
+  assert.match(el('investmentFundingSummary').textContent, /260,000/);
+  assert.match(el('pnlSummary').innerHTML, /Investor Lease:<\/b> €120,000/);
+  el('includeGymROI').checked = false;
+  p.updateROI();
+  assert.equal(vm.runInContext('roiBarChart.config.data.datasets[0].data[3]', p), -120000);
+  el('roiCostAdjust').value = '150';
+  p.updateROI();
+  assert.equal(vm.runInContext('roiBarChart.config.data.datasets[0].data[3]', p), -180000);
+});
+
+test('gym ramp handles zero and full year durations and can be disabled', () => {
+  const { context: p, element: el } = createPlanner();
+  el('gymRamp').checked = true;
+  el('rampDuration').value = '0';
+  el('rampEffect').value = '0';
+  p.calculateGym();
+  assert.ok(Math.abs(p.gymData.revenue - 818800) < 0.001);
+  el('rampDuration').value = '12';
+  p.calculateGym();
+  assert.equal(p.gymData.revenue, 0);
+  assert.ok(p.gymData.monthlyRevenues.every(revenue => revenue === 0));
+  el('gymRamp').checked = false;
+  p.calculateGym();
+  assert.ok(Math.abs(p.gymData.revenue - 818800) < 0.001);
+});
+
+test('cash flow and ramp settings round-trip and legacy scenarios restore defaults', () => {
+  const { context: p, element: el } = createPlanner();
+  el('openingCash').value = '5000';
+  el('investorLease').value = '48000';
+  el('openingCash').handlers.change();
+  el('gymRamp').checked = true;
+  el('rampDuration').value = '6';
+  el('rampEffect').value = '25';
+  p.calculateGym();
+  const saved = p.getScenarioState();
+  const old = { ...saved };
+  for (const id of ['openingCash', 'investorLease', 'gymRamp', 'rampDuration', 'rampEffect']) delete old[id];
+  p.setScenarioState(old);
+  assert.equal(el('gymRamp').checked, false);
+  assert.equal(el('openingCash').value, '0');
+  assert.match(el('pnlSummary').innerHTML, /Investor Lease:<\/b> €0/);
+  p.setScenarioState(saved);
+  assert.equal(el('gymRamp').checked, true);
+  assert.equal(el('rampDurationLabel').textContent, '6');
+  assert.equal(el('rampEffectLabel').textContent, '25%');
+  assert.match(el('pnlSummary').innerHTML, /Investor Lease:<\/b> €48,000/);
+  assert.match(el('#cashFlowTable tbody').innerHTML, /<tr><td>1<\/td><td>€5000\.00/);
+  el('investorLease').value = '-10';
+  el('investorLease').handlers.change();
+  assert.match(el('investorLease').validationMessage, /non-negative/);
+  assert.match(el('pnlSummary').innerHTML, /Investor Lease:<\/b> €48,000/);
 });

@@ -121,8 +121,8 @@
       <div class="section-group">
         <h3>Ramp-up</h3>
         <label>Apply Ramp-Up? <input id="gymRamp" type="checkbox"></label>
-        <label>Ramp Duration (months): <input id="rampDuration" type="range" min="0" max="12" value="3" step="1" oninput="rampDurationLabel.textContent=this.value"><span id="rampDurationLabel">3</span></label>
-        <label>Ramp Effect (%): <input id="rampEffect" type="range" min="0" max="100" value="40" step="1" oninput="rampEffectLabel.textContent=this.value+'%'"><span id="rampEffectLabel">40%</span></label>
+        <label>Ramp Duration (months): <input id="rampDuration" type="range" min="0" max="12" value="3" step="1" oninput="rampDurationLabel.textContent=this.value; calculateGym()"><span id="rampDurationLabel">3</span></label>
+        <label>Ramp Effect (%): <input id="rampEffect" type="range" min="0" max="100" value="40" step="1" oninput="rampEffectLabel.textContent=this.value+'%'; calculateGym()"><span id="rampEffectLabel">40%</span></label>
       </div>
       <div id="gymSummary" class="summary" aria-live="polite"></div>
       <button id="calculateGymBtn">Calculate Gym</button>
@@ -170,6 +170,14 @@
   <h2>Profit &amp; Loss Statement</h2>
   <div class="section-group">
     <label><input type="checkbox" id="includeGym" checked> Include Gym in PnL</label>
+  </div>
+  <div class="section-group">
+    <h3>Investor Lease &amp; Opening Cash</h3>
+    <label>Opening Cash (€): <input id="openingCash" type="number" min="0" step="0.01" value="0"></label>
+    <label>Annual Investor Lease Payment (€): <input id="investorLease" type="number" min="0" step="0.01" value="0"></label>
+    <p>The investor funds the selected setup costs directly; they do not pass through the operator's cash account. Lease payments are spread evenly over 12 months and remain payable if Gym is excluded.</p>
+    <p>Padel revenue, operating costs and gym membership receipts are averaged monthly, except for the gym ramp-up. Annual memberships are not modeled as upfront cash receipts.</p>
+    <div id="investmentFundingSummary"></div>
   </div>
   <div id="pnlSummary" class="summary"></div>
   <div class="section-group">

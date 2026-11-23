@@ -27,6 +27,23 @@ const gymInputIds = [
   'gymFtTrainer', 'gymFtTrainerSal', 'gymPtTrainer', 'gymPtTrainerSal', 'gymAddStaff', 'gymAddStaffSal'
 ];
 const sharedStaffInputIds = ['padelFtRec', 'padelFtRecSal', 'receptionPt', 'receptionPtSal', 'directorCount', 'directorSalary'];
+let cashFlowSettings = { openingCash: 0, investorLease: 0 };
+function updateCashFlowSettings() {
+  const ids = ['openingCash', 'investorLease'];
+  for (const id of ids) {
+    const input = document.getElementById(id);
+    if (input.value.trim() === '' || !Number.isFinite(Number(input.value)) || Number(input.value) < 0) {
+      input.setCustomValidity('Enter a non-negative amount.');
+      input.reportValidity();
+      return false;
+    }
+    input.setCustomValidity('');
+  }
+  cashFlowSettings = Object.fromEntries(ids.map(id => [id, Number(document.getElementById(id).value)]));
+  updatePnL();
+  updateROI();
+  return true;
+}
 function calculateOperationCosts(prefix) {
   return (
     getNumberInputValue(`${prefix}Util`) +
@@ -138,7 +155,7 @@ window.calculatePadel = function() {
     <p><b>Total Revenue:</b> €${totalRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     <p><b>Operational Costs:</b> €${totalOpCosts.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     <p><b>Staff Costs:</b> €${totalStaffCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-    <p><b>Net Profit (before shared staff costs):</b> €${netProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+    <p><b>Net Profit (before shared staff and investor lease):</b> €${netProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     ${utilBreakdown}
   `;
   updateStaffSummary();
@@ -160,21 +177,14 @@ window.calculateGym = function() {
     ['gymPtTrainer', 'gymPtTrainerSal'],
     ['gymAddStaff', 'gymAddStaffSal'],
   ]);
-  let adjustedAnnualRevenue = totalAnnualRevenue;
+  const rampDuration = document.getElementById('gymRamp').checked ? getNumberInputValue('rampDuration') : 0;
+  const rampEffect = getNumberInputValue('rampEffect') / 100;
+  const monthlyRevenues = Array.from({ length: 12 }, (_, month) =>
+    totalAnnualRevenue / 12 * (month < rampDuration ? rampEffect : 1)
+  );
+  const adjustedAnnualRevenue = monthlyRevenues.reduce((total, revenue) => total + revenue, 0);
   let rampSummary = "";
   if (document.getElementById('gymRamp').checked) {
-    const rampDuration = getNumberInputValue('rampDuration');
-    const rampEffect = getNumberInputValue('rampEffect') / 100;
-    const monthlyRevenue = totalAnnualRevenue / 12;
-    let totalRev = 0;
-    for (let i = 1; i <= 12; i++) {
-      if (i <= rampDuration) {
-        totalRev += monthlyRevenue * rampEffect;
-      } else {
-        totalRev += monthlyRevenue;
-      }
-    }
-    adjustedAnnualRevenue = totalRev;
     rampSummary = `<p><b>Ramp-up:</b> First ${rampDuration} months at ${getNumberInputValue('rampEffect')}% revenue</p>`;
   }
   const netProfit = adjustedAnnualRevenue - totalOpCosts - totalStaffCost;
@@ -184,6 +194,7 @@ window.calculateGym = function() {
     staffCost: totalStaffCost,
     profit: netProfit,
     monthlyRevenue: adjustedAnnualRevenue / 12,
+    monthlyRevenues,
     monthlyCosts: (totalOpCosts + totalStaffCost) / 12,
     monthlyProfit: netProfit / 12,
   };
@@ -192,7 +203,7 @@ window.calculateGym = function() {
     <p><b>Annual Revenue:</b> €${adjustedAnnualRevenue.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     <p><b>Operational Costs:</b> €${totalOpCosts.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     <p><b>Staff Costs:</b> €${totalStaffCost.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
-    <p><b>Net Profit (before shared staff costs):</b> €${netProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
+    <p><b>Net Profit (before shared staff and investor lease):</b> €${netProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     ${rampSummary}
   `;
   updateStaffSummary();
@@ -211,38 +222,42 @@ function updatePnL() {
   const padel = window.padelData || { revenue: 0, costs: 0, profit: 0, monthlyRevenue: 0, monthlyCosts: 0, monthlyProfit: 0 };
   const gym = gymIncluded() && window.gymData ? window.gymData : { revenue: 0, costs: 0, profit: 0, monthlyRevenue: 0, monthlyCosts: 0, monthlyProfit: 0 };
   const sharedStaff = window.sharedStaffData?.total || 0;
+  const investorLease = cashFlowSettings.investorLease;
   const totalRevenue = padel.revenue + gym.revenue;
-  const totalCosts = padel.costs + gym.costs + sharedStaff;
-  const totalProfit = padel.profit + gym.profit - sharedStaff;
+  const totalCosts = padel.costs + gym.costs + sharedStaff + investorLease;
+  const totalProfit = padel.profit + gym.profit - sharedStaff - investorLease;
   const summaryDiv = document.getElementById('pnlSummary');
   summaryDiv.innerHTML = `
     <p><b>Total Revenue:</b> €${Math.round(totalRevenue).toLocaleString('en-US')}</p>
     <p><b>Total Costs:</b> €${Math.round(totalCosts).toLocaleString('en-US')}</p>
     <p><b>Shared Staff Costs:</b> €${Math.round(sharedStaff).toLocaleString('en-US')}</p>
+    <p><b>Investor Lease:</b> €${Math.round(investorLease).toLocaleString('en-US')}</p>
     <p><b>Net Profit:</b> €${Math.round(totalProfit).toLocaleString('en-US')}</p>
   `;
   // Monthly breakdown
   const tbody = document.querySelector('#monthlyBreakdown tbody');
   tbody.innerHTML = '';
-  for (let i = 1; i <= 12; i++) {
-    const rev = (padel.monthlyRevenue + gym.monthlyRevenue);
-    const costs = (padel.monthlyCosts + gym.monthlyCosts + sharedStaff / 12);
-    const profit = (padel.monthlyProfit + gym.monthlyProfit - sharedStaff / 12);
-    const row = `<tr><td>${i}</td><td>€${rev.toFixed(2)}</td><td>€${costs.toFixed(2)}</td><td>€${profit.toFixed(2)}</td></tr>`;
+  const months = Array.from({ length: 12 }, (_, i) => {
+    const revenue = padel.monthlyRevenue + (gym.monthlyRevenues ? gym.monthlyRevenues[i] : gym.monthlyRevenue);
+    const costs = padel.monthlyCosts + gym.monthlyCosts + (sharedStaff + investorLease) / 12;
+    return { revenue, costs, profit: revenue - costs };
+  });
+  months.forEach((month, i) => {
+    const row = `<tr><td>${i + 1}</td><td>€${month.revenue.toFixed(2)}</td><td>€${month.costs.toFixed(2)}</td><td>€${month.profit.toFixed(2)}</td></tr>`;
     tbody.insertAdjacentHTML('beforeend', row);
-  }
+  });
   // Cash flow calculation
   const cashFlowBody = document.querySelector('#cashFlowTable tbody');
-  let opening = 0;
+  let opening = cashFlowSettings.openingCash;
   cashFlowBody.innerHTML = '';
-  for (let i = 1; i <= 12; i++) {
-    const inflow = (padel.monthlyRevenue + gym.monthlyRevenue);
-    const outflow = (padel.monthlyCosts + gym.monthlyCosts + sharedStaff / 12);
-    const closing = opening + inflow - outflow;
+  document.getElementById('investmentFundingSummary').textContent =
+    `Investor-funded setup costs: €${getTotalInvestment(gymIncluded()).toLocaleString()}`;
+  months.forEach((month, i) => {
+    const closing = opening + month.profit;
     cashFlowBody.insertAdjacentHTML('beforeend',
-      `<tr><td>${i}</td><td>€${opening.toFixed(2)}</td><td>€${inflow.toFixed(2)}</td><td>€${outflow.toFixed(2)}</td><td>€${closing.toFixed(2)}</td></tr>`);
+      `<tr><td>${i + 1}</td><td>€${opening.toFixed(2)}</td><td>€${month.revenue.toFixed(2)}</td><td>€${month.costs.toFixed(2)}</td><td>€${closing.toFixed(2)}</td></tr>`);
     opening = closing;
-  }
+  });
   // Charts
   if (pnlChart) pnlChart.destroy();
   if (profitTrendChart) profitTrendChart.destroy();
@@ -263,7 +278,7 @@ function updatePnL() {
   });
   // Profit Trend Chart
   const ctxProfitTrend = document.getElementById('profitTrendChart').getContext('2d');
-  const monthlyProfits = new Array(12).fill(totalProfit / 12);
+  const monthlyProfits = months.map(month => month.profit);
   profitTrendChart = new Chart(ctxProfitTrend, {
     type: 'line',
     data: {
@@ -285,24 +300,22 @@ function updatePnL() {
   costPieChart = new Chart(ctxCostPie, {
     type: 'pie',
     data: {
-      labels: ['Padel Costs', 'Gym Costs', 'Shared Staff Costs'],
+      labels: ['Padel Costs', 'Gym Costs', 'Shared Staff Costs', 'Investor Lease'],
       datasets: [{
-        data: [padel.costs, gym.costs, sharedStaff],
-        backgroundColor: ['#f39c12', '#3498db', '#8e44ad']
+        data: [padel.costs, gym.costs, sharedStaff, investorLease],
+        backgroundColor: ['#f39c12', '#3498db', '#8e44ad', '#16a085']
       }]
     },
     options: { responsive: true, maintainAspectRatio: false }
   });
 }
-function getTotalInvestment() {
+function getTotalInvestment(includeGym = true) {
   return (
     getNumberInputValue('padelGround') +
     getNumberInputValue('padelStructure') +
     (getNumberInputValue('padelCourts') * getNumberInputValue('padelCourtCost')) +
     getNumberInputValue('padelAmenities') +
-    getNumberInputValue('gymEquip') +
-    getNumberInputValue('gymFloor') +
-    getNumberInputValue('gymAmen') +
+    (includeGym ? getNumberInputValue('gymEquip') + getNumberInputValue('gymFloor') + getNumberInputValue('gymAmen') : 0) +
     getNumberInputValue('landPurchaseCost') +
     getNumberInputValue('buildingPurchaseCost')
   );
@@ -326,6 +339,7 @@ function updateROI() {
   const revAdjust = getNumberInputValue('roiRevAdjust') / 100;
   const costAdjust = getNumberInputValue('roiCostAdjust') / 100;
   const sharedStaffAdjCost = (window.sharedStaffData?.total || 0) * costAdjust;
+  const leaseAdjCost = cashFlowSettings.investorLease * costAdjust;
   const padelAdjProfit = (padel.revenue * revAdjust) - (padel.costs * costAdjust);
   const gymAdjProfit = (gym.revenue * revAdjust) - (gym.costs * costAdjust);
   const padelInvestment =
@@ -341,9 +355,9 @@ function updateROI() {
   const buildingPurchaseCost = getNumberInputValue('buildingPurchaseCost');
   const propertyPurchaseInvestment = landPurchaseCost + buildingPurchaseCost;
   const totalInvestment = padelInvestment + (gymIncludedROI() ? gymInvestment : 0) + propertyPurchaseInvestment;
-  const annualProfit = padelAdjProfit + (gymIncludedROI() ? gymAdjProfit : 0) - sharedStaffAdjCost;
+  const annualProfit = padelAdjProfit + gymAdjProfit - sharedStaffAdjCost - leaseAdjCost;
   const paybackYears = annualProfit > 0 ? Math.ceil(totalInvestment / annualProfit) : '∞';
-  document.getElementById('yearsToROIText').innerHTML = `<div class="roi-summary">Estimated Payback Period: <b>${paybackYears} year(s)</b></div>`;
+  document.getElementById('yearsToROIText').innerHTML = `<div class="roi-summary">Estimated setup-cost recovery benchmark: <b>${paybackYears} year(s)</b> (not investor lease payback)</div>`;
   let cumulativeProfit = 0;
   const years = [...Array(10).keys()].map(i => i + 1);
   const cumulativeProfits = years.map(year => {
@@ -380,11 +394,11 @@ function updateROI() {
   roiBarChart = new Chart(ctxRoiBar, {
     type: 'bar',
     data: {
-      labels: ['Padel', 'Gym', 'Shared Staff Costs'],
+      labels: ['Padel', 'Gym', 'Shared Staff Costs', 'Investor Lease'],
       datasets: [{
         label: 'Annual Profit (€)',
-        data: [padelAdjProfit, gymIncludedROI() ? gymAdjProfit : 0, -sharedStaffAdjCost],
-        backgroundColor: ['#e67e22', '#2980b9', '#8e44ad']
+        data: [padelAdjProfit, gymIncludedROI() ? gymAdjProfit : 0, -sharedStaffAdjCost, -leaseAdjCost],
+        backgroundColor: ['#e67e22', '#2980b9', '#8e44ad', '#16a085']
       }]
     },
     options: { responsive: true, maintainAspectRatio: false }
@@ -443,7 +457,7 @@ function updateROI() {
     <h3>Cumulative Return &amp; Net ROI</h3>
     <p>Initial investment: €${totalInvestment.toLocaleString()} | Adjusted annual operating profit: €${annualProfit.toLocaleString()}</p>
     <p>Profit return = cumulative operating profit ÷ initial investment. Net ROI = (cumulative operating profit − initial investment) ÷ initial investment.</p>
-    <p>These are cumulative, not annualized, estimates. They assume the same adjusted profit each year. Financing, taxes, and property resale value are not modeled separately.</p>
+    <p>This is a benchmark against the investor-funded setup cost, not a return on the operator's own capital or the investor's return. Profit is after the investor lease; setup cost is still subtracted in net ROI. These cumulative, non-annualized estimates repeat the first-year adjusted profit, including any gym ramp-up. Taxes and property resale value are not modeled separately.</p>
     <table class="breakdown-table">
       <thead><tr><th>Period</th><th>Profit Return</th><th>Net ROI</th></tr></thead>
       <tbody>${rows}</tbody>
@@ -494,21 +508,28 @@ function drawTornadoChart() {
 
 // --- Scenario Management ---
 function getScenarioState() {
-  const ids = padelInputIds.concat(gymInputIds, sharedStaffInputIds, ['landPurchaseCost', 'buildingPurchaseCost']);
+  const ids = padelInputIds.concat(gymInputIds, sharedStaffInputIds, ['landPurchaseCost', 'buildingPurchaseCost', 'openingCash', 'investorLease', 'rampDuration', 'rampEffect']);
   const state = {};
   ids.forEach(id => state[id] = getNumberInputValue(id));
   state['roiRevAdjust'] = getNumberInputValue('roiRevAdjust');
   state['roiCostAdjust'] = getNumberInputValue('roiCostAdjust');
+  state['gymRamp'] = document.getElementById('gymRamp').checked;
   state['scenarioTimestamp'] = Date.now();
   return state;
 }
 function setScenarioState(state) {
-  ['receptionPt', 'receptionPtSal', 'directorCount', 'directorSalary'].forEach(id => {
-    document.getElementById(id).value = state[id] ?? 0;
+  ['receptionPt', 'receptionPtSal', 'directorCount', 'directorSalary', 'openingCash', 'investorLease'].forEach(id => {
+    document.getElementById(id).value = String(state[id] ?? 0);
   });
   Object.keys(state).forEach(id => {
-    if (document.getElementById(id)) document.getElementById(id).value = state[id];
+    if (id !== 'gymRamp' && document.getElementById(id)) document.getElementById(id).value = String(state[id]);
   });
+  document.getElementById('gymRamp').checked = state.gymRamp ?? false;
+  document.getElementById('rampDuration').value = String(state.rampDuration ?? 3);
+  document.getElementById('rampEffect').value = String(state.rampEffect ?? 40);
+  document.getElementById('rampDurationLabel').textContent = document.getElementById('rampDuration').value;
+  document.getElementById('rampEffectLabel').textContent = document.getElementById('rampEffect').value + '%';
+  updateCashFlowSettings();
   updateSharedStaff();
   calculatePadel();
   calculateGym();
@@ -562,6 +583,7 @@ function renderScenarioDiff() {
 }
 document.getElementById('scenarioForm').onsubmit = (e) => {
   e.preventDefault();
+  if (!updateCashFlowSettings()) return;
   const name = document.getElementById('scenarioName').value.trim();
   if (name) {
     saveScenario(name);
@@ -578,15 +600,16 @@ function generateSummaryReport() {
   <h3>Key Financials</h3>
   <ul>
     <li><b>Padel Revenue:</b> €${(padel.revenue || 0).toLocaleString()}</li>
-    <li><b>Padel Net Profit (before shared staff):</b> €${(padel.profit || 0).toLocaleString()}</li>
+    <li><b>Padel Net Profit (before shared staff and lease):</b> €${(padel.profit || 0).toLocaleString()}</li>
     <li><b>Gym Revenue:</b> €${(gym.revenue || 0).toLocaleString()}</li>
-    <li><b>Gym Net Profit (before shared staff):</b> €${(gym.profit || 0).toLocaleString()}</li>
+    <li><b>Gym Net Profit (before shared staff and lease):</b> €${(gym.profit || 0).toLocaleString()}</li>
     <li><b>Shared Staff Costs:</b> €${(window.sharedStaffData?.total || 0).toLocaleString()}</li>
-    <li><b>Combined Net Profit:</b> €${((padel.profit || 0) + (gym.profit || 0) - (window.sharedStaffData?.total || 0)).toLocaleString()}</li>
+    <li><b>Annual Investor Lease:</b> €${cashFlowSettings.investorLease.toLocaleString()}</li>
+    <li><b>Combined Net Profit:</b> €${((padel.profit || 0) + (gym.profit || 0) - (window.sharedStaffData?.total || 0) - cashFlowSettings.investorLease).toLocaleString()}</li>
     ${document.getElementById('gymRamp')?.checked ? `<li><b>Ramp-Up:</b> ${getNumberInputValue('rampDuration')} months at ${getNumberInputValue('rampEffect')}%</li>` : ""}
     <li><b>Land Purchase Cost:</b> €${getNumberInputValue('landPurchaseCost').toLocaleString()}</li>
     <li><b>Building Purchase Cost:</b> €${getNumberInputValue('buildingPurchaseCost').toLocaleString()}</li>
-    <li><b>Total Investment:</b> €${getTotalInvestment().toLocaleString()}</li>
+    <li><b>Investor-Funded Setup Costs:</b> €${getTotalInvestment(gymIncluded()).toLocaleString()}</li>
   </ul>
     <div><canvas id="summaryPnL" height="150"></canvas></div>
     <div><canvas id="summaryROI" height="150"></canvas></div>
@@ -603,8 +626,8 @@ function generateSummaryReport() {
   window.summaryPnLChart = new Chart(document.getElementById('summaryPnL').getContext('2d'), {
     type: 'bar',
     data: {
-      labels: ['Padel Profit', 'Gym Profit', 'Shared Staff Costs'],
-      datasets: [{label: 'Net Profit', data: [padel.profit || 0, gymIncluded() ? (gym.profit || 0) : 0, -(window.sharedStaffData?.total || 0)], backgroundColor: ['#4caf50', '#2980b9', '#8e44ad']}]
+      labels: ['Padel Profit', 'Gym Profit', 'Shared Staff Costs', 'Investor Lease'],
+      datasets: [{label: 'Net Profit', data: [padel.profit || 0, gymIncluded() ? (gym.profit || 0) : 0, -(window.sharedStaffData?.total || 0), -cashFlowSettings.investorLease], backgroundColor: ['#4caf50', '#2980b9', '#8e44ad', '#16a085']}]
     },
     options: { responsive: true, maintainAspectRatio: false }
   });
@@ -795,12 +818,16 @@ window.onload = function () {
   document.getElementById('calculateGymBtn')?.addEventListener('click', calculateGym);
   document.getElementById('includeGym')?.addEventListener('change', updatePnL);
   document.getElementById('includeGymROI')?.addEventListener('change', updateROI);
+  document.getElementById('gymRamp').addEventListener('change', calculateGym);
+  ['openingCash', 'investorLease'].forEach(id => {
+    document.getElementById(id).addEventListener('change', updateCashFlowSettings);
+  });
   document.getElementById('padelStaff').addEventListener('change', calculatePadel);
   document.getElementById('gymStaff').addEventListener('change', calculateGym);
   document.getElementById('receptionStaff').addEventListener('change', updateSharedStaff);
   document.getElementById('directorStaff').addEventListener('change', updateSharedStaff);
   ['landPurchaseCost', 'buildingPurchaseCost'].forEach(id => {
-    document.getElementById(id)?.addEventListener('input', updateROI);
+    document.getElementById(id)?.addEventListener('input', () => { updatePnL(); updateROI(); });
   });
   document.getElementById('ganttTaskResetBtn')?.addEventListener('click', function() {
     document.getElementById('ganttEditId').value = '';

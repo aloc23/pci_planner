@@ -42,6 +42,17 @@ function calculateStaffCosts(ids) {
     return sum + getNumberInputValue(countId) * getNumberInputValue(salaryId);
   }, 0);
 }
+function updateStaffSummary() {
+  const padel = window.padelData?.staffCost || 0;
+  const gym = window.gymData?.staffCost || 0;
+  const format = value => value.toLocaleString(undefined, { maximumFractionDigits: 2 });
+  document.getElementById('staffSummary').innerHTML = `
+    <h3>Annual Staff Costs</h3>
+    <p>Padel: €${format(padel)}</p>
+    <p>Gym: €${format(gym)}</p>
+    <p>Total (Padel and Gym): €${format(padel + gym)}</p>
+  `;
+}
 let pnlChart, profitTrendChart, costPieChart, roiLineChart, roiBarChart, roiPieChart, roiBreakEvenChart, tornadoChart;
 function capitalize(str) { return str.charAt(0).toUpperCase() + str.slice(1); }
 
@@ -103,6 +114,7 @@ window.calculatePadel = function() {
   window.padelData = {
     revenue: totalRevenue,
     costs: totalOpCosts + totalStaffCost,
+    staffCost: totalStaffCost,
     profit: netProfit,
     monthlyRevenue: totalRevenue / 12,
     monthlyCosts: (totalOpCosts + totalStaffCost) / 12,
@@ -116,6 +128,7 @@ window.calculatePadel = function() {
     <p><b>Net Profit:</b> €${netProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     ${utilBreakdown}
   `;
+  updateStaffSummary();
   updatePnL();
   updateROI();
 };
@@ -155,6 +168,7 @@ window.calculateGym = function() {
   window.gymData = {
     revenue: adjustedAnnualRevenue,
     costs: totalOpCosts + totalStaffCost,
+    staffCost: totalStaffCost,
     profit: netProfit,
     monthlyRevenue: adjustedAnnualRevenue / 12,
     monthlyCosts: (totalOpCosts + totalStaffCost) / 12,
@@ -168,6 +182,7 @@ window.calculateGym = function() {
     <p><b>Net Profit:</b> €${netProfit.toLocaleString(undefined, { maximumFractionDigits: 0 })}</p>
     ${rampSummary}
   `;
+  updateStaffSummary();
   updatePnL();
   updateROI();
 };
@@ -748,6 +763,8 @@ window.onload = function () {
   document.getElementById('calculateGymBtn')?.addEventListener('click', calculateGym);
   document.getElementById('includeGym')?.addEventListener('change', updatePnL);
   document.getElementById('includeGymROI')?.addEventListener('change', updateROI);
+  document.getElementById('padelStaff').addEventListener('change', calculatePadel);
+  document.getElementById('gymStaff').addEventListener('change', calculateGym);
   ['landPurchaseCost', 'buildingPurchaseCost'].forEach(id => {
     document.getElementById(id)?.addEventListener('input', updateROI);
   });

@@ -22,6 +22,7 @@
   <nav class="tabs" role="tablist">
     <button type="button" data-tab="padel" class="active">Padel</button>
     <button type="button" data-tab="gym">Gym</button>
+    <button type="button" data-tab="staff">Staff</button>
     <button type="button" data-tab="pnl">Profit &amp; Loss</button>
     <button type="button" data-tab="roi">ROI</button>
     <button type="button" data-tab="scenarios">Scenarios</button>
@@ -86,19 +87,6 @@
         <label>Cleaning/year: <input id="padelClean" type="number" value="2000"></label>
         <label>Misc/year: <input id="padelMisc" type="number" value="1000"></label>
       </div>
-      <div class="section-group">
-        <h3>Staffing</h3>
-        <label>Full-time Manager: <input id="padelFtMgr" type="number" value="1"></label>
-        <label>FT Mgr Salary: <input id="padelFtMgrSal" type="number" value="35000"></label>
-        <label>Full-time Reception: <input id="padelFtRec" type="number" value="1"></label>
-        <label>FT Rec Salary: <input id="padelFtRecSal" type="number" value="21000"></label>
-        <label>Full-time Coach: <input id="padelFtCoach" type="number" value="1"></label>
-        <label>FT Coach Salary: <input id="padelFtCoachSal" type="number" value="25000"></label>
-        <label>Part-time Coach: <input id="padelPtCoach" type="number" value="1"></label>
-        <label>PT Coach Salary: <input id="padelPtCoachSal" type="number" value="12000"></label>
-        <label>Additional Staff: <input id="padelAddStaff" type="number" value="0"></label>
-        <label>Add Staff Salary: <input id="padelAddStaffSal" type="number" value="0"></label>
-      </div>
       <div id="padelSummary" class="summary" aria-live="polite"></div>
       <button id="calculatePadelBtn">Calculate Padel</button>
     </section>
@@ -131,15 +119,6 @@
         <label>Misc/year: <input id="gymMisc" type="number" value="800"></label>
       </div>
       <div class="section-group">
-        <h3>Staffing</h3>
-        <label>Full-time Trainer: <input id="gymFtTrainer" type="number" value="1"></label>
-        <label>FT Trainer Salary: <input id="gymFtTrainerSal" type="number" value="22000"></label>
-        <label>Part-time Trainer: <input id="gymPtTrainer" type="number" value="1"></label>
-        <label>PT Trainer Salary: <input id="gymPtTrainerSal" type="number" value="9000"></label>
-        <label>Additional Staff: <input id="gymAddStaff" type="number" value="0"></label>
-        <label>Add Staff Salary: <input id="gymAddStaffSal" type="number" value="0"></label>
-      </div>
-      <div class="section-group">
         <h3>Ramp-up</h3>
         <label>Apply Ramp-Up? <input id="gymRamp" type="checkbox"></label>
         <label>Ramp Duration (months): <input id="rampDuration" type="range" min="0" max="12" value="3" step="1" oninput="rampDurationLabel.textContent=this.value"><span id="rampDurationLabel">3</span></label>
@@ -147,6 +126,34 @@
       </div>
       <div id="gymSummary" class="summary" aria-live="polite"></div>
       <button id="calculateGymBtn">Calculate Gym</button>
+    </section>
+    <!-- STAFF TAB -->
+    <section id="staff" class="tab-content hidden">
+      <h2>Staffing</h2>
+      <p>Enter staff counts and annual salary per person. Allocate each cost to either Padel or Gym to avoid double counting.</p>
+      <div class="section-group" id="padelStaff">
+        <h3>Padel Staff</h3>
+        <label>Full-time Manager: <input id="padelFtMgr" type="number" min="0" value="1"></label>
+        <label>FT Mgr Salary: <input id="padelFtMgrSal" type="number" min="0" value="35000"></label>
+        <label>Full-time Reception: <input id="padelFtRec" type="number" min="0" value="1"></label>
+        <label>FT Rec Salary: <input id="padelFtRecSal" type="number" min="0" value="21000"></label>
+        <label>Full-time Coach: <input id="padelFtCoach" type="number" min="0" value="1"></label>
+        <label>FT Coach Salary: <input id="padelFtCoachSal" type="number" min="0" value="25000"></label>
+        <label>Part-time Coach: <input id="padelPtCoach" type="number" min="0" value="1"></label>
+        <label>PT Coach Salary: <input id="padelPtCoachSal" type="number" min="0" value="12000"></label>
+        <label>Additional Staff: <input id="padelAddStaff" type="number" min="0" value="0"></label>
+        <label>Add Staff Salary: <input id="padelAddStaffSal" type="number" min="0" value="0"></label>
+      </div>
+      <div class="section-group" id="gymStaff">
+        <h3>Gym Staff</h3>
+        <label>Full-time Trainer: <input id="gymFtTrainer" type="number" min="0" value="1"></label>
+        <label>FT Trainer Salary: <input id="gymFtTrainerSal" type="number" min="0" value="22000"></label>
+        <label>Part-time Trainer: <input id="gymPtTrainer" type="number" min="0" value="1"></label>
+        <label>PT Trainer Salary: <input id="gymPtTrainerSal" type="number" min="0" value="9000"></label>
+        <label>Additional Staff: <input id="gymAddStaff" type="number" min="0" value="0"></label>
+        <label>Add Staff Salary: <input id="gymAddStaffSal" type="number" min="0" value="0"></label>
+      </div>
+      <div id="staffSummary" class="summary" aria-live="polite"></div>
     </section>
     <!-- PNL TAB -->
 <section id="pnl" class="tab-content hidden">

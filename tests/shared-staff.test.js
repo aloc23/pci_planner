@@ -103,3 +103,48 @@ test('saved scenarios preserve old reception values and reset new shared fields 
   p.setScenarioState(current);
   assert.equal(p.sharedStaffData.total, 140000);
 });
+
+test('ROI distinguishes cumulative profit return from net return on investment', () => {
+  const { context: p, element: el } = createPlanner();
+  for (const id of ['padelStructure', 'padelCourts', 'padelAmenities', 'gymEquip', 'gymFloor', 'gymAmen']) {
+    el(id).value = '0';
+  }
+  el('padelGround').value = '100000';
+  el('landPurchaseCost').value = '50000';
+  el('buildingPurchaseCost').value = '50000';
+  p.padelData = { revenue: 70000, costs: 10000 };
+  p.gymData = { revenue: 30000, costs: 9000 };
+  p.sharedStaffData = { total: 21000 };
+  p.updateROI();
+  assert.match(el('roiKPIs').innerHTML, /Year 1<\/td><td>30\.0%<\/td><td>-70\.0%/);
+  assert.match(el('roiKPIs').innerHTML, /Year 3<\/td><td>90\.0%<\/td><td>-10\.0%/);
+  assert.match(el('roiKPIs').innerHTML, /Year 5<\/td><td>150\.0%<\/td><td>50\.0%/);
+
+  el('gymEquip').value = '50000';
+  p.updateROI();
+  assert.match(el('roiKPIs').innerHTML, /Year 1<\/td><td>24\.0%<\/td><td>-76\.0%/);
+  el('includeGymROI').checked = false;
+  el('roiCostAdjust').value = '200';
+  p.updateROI();
+  assert.match(el('roiKPIs').innerHTML, /Year 1<\/td><td>4\.0%<\/td><td>-96\.0%/);
+  el('roiRevAdjust').value = '0';
+  p.updateROI();
+  assert.match(el('roiKPIs').innerHTML, /Year 1<\/td><td>-31\.0%<\/td><td>-131\.0%/);
+
+  p.padelData = { revenue: 100000, costs: 0 };
+  p.sharedStaffData = { total: 0 };
+  el('roiRevAdjust').value = '100';
+  p.updateROI();
+  assert.match(el('roiKPIs').innerHTML, /Year 1<\/td><td>50\.0%<\/td><td>-50\.0%/);
+  assert.match(el('yearsToROIText').innerHTML, /2 year/);
+  p.padelData.revenue = 200000;
+  p.updateROI();
+  assert.match(el('roiKPIs').innerHTML, /Year 1<\/td><td>100\.0%<\/td><td>0\.0%/);
+
+  el('padelGround').value = '0';
+  el('landPurchaseCost').value = '0';
+  el('buildingPurchaseCost').value = '0';
+  p.updateROI();
+  assert.match(el('roiKPIs').innerHTML, /Year 1<\/td><td>N\/A<\/td><td>N\/A/);
+  assert.match(el('roiKPIs').innerHTML, /initial investment is zero/);
+});

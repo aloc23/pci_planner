@@ -366,7 +366,7 @@ function updateROI() {
     data: {
       labels: years.map(y => `Year ${y}`),
       datasets: [{
-        label: 'Cumulative Profit (€)',
+        label: 'Cumulative Operating Profit Before Investment (€)',
         data: cumulativeProfits,
         borderColor: '#27ae60',
         fill: false,
@@ -410,7 +410,7 @@ function updateROI() {
       labels: years.map(y => `Year ${y}`),
       datasets: [
         {
-          label: 'Cumulative Profit',
+          label: 'Cumulative Operating Profit Before Investment',
           data: cumulativeProfits,
           borderColor: '#27ae60',
           fill: false,
@@ -432,14 +432,24 @@ function updateROI() {
   });
   // Update ROI KPIs
   const roiKPIs = document.getElementById('roiKPIs');
-  const roiPercentages = [
-    { year: 1, roi: annualProfit / totalInvestment * 100 },
-    { year: 3, roi: annualProfit * 3 / totalInvestment * 100 },
-    { year: 5, roi: annualProfit * 5 / totalInvestment * 100 }
-  ];
-  roiKPIs.innerHTML = '<h3>ROI Percentages</h3><ul>' + roiPercentages.map(item => {
-    return `<li>Year ${item.year}: ${isFinite(item.roi) ? item.roi.toFixed(1) + '%' : 'N/A'}</li>`;
-  }).join('') + '</ul>';
+  const formatPercent = value => totalInvestment > 0 ? `${value.toFixed(1)}%` : 'N/A';
+  const rows = [1, 3, 5].map(year => {
+    const cumulativeProfit = annualProfit * year;
+    const profitReturn = totalInvestment > 0 ? cumulativeProfit / totalInvestment * 100 : 0;
+    const netROI = totalInvestment > 0 ? (cumulativeProfit - totalInvestment) / totalInvestment * 100 : 0;
+    return `<tr><td>Year ${year}</td><td>${formatPercent(profitReturn)}</td><td>${formatPercent(netROI)}</td></tr>`;
+  }).join('');
+  roiKPIs.innerHTML = `
+    <h3>Cumulative Return &amp; Net ROI</h3>
+    <p>Initial investment: €${totalInvestment.toLocaleString()} | Adjusted annual operating profit: €${annualProfit.toLocaleString()}</p>
+    <p>Profit return = cumulative operating profit ÷ initial investment. Net ROI = (cumulative operating profit − initial investment) ÷ initial investment.</p>
+    <p>These are cumulative, not annualized, estimates. They assume the same adjusted profit each year. Financing, taxes, and property resale value are not modeled separately.</p>
+    <table class="breakdown-table">
+      <thead><tr><th>Period</th><th>Profit Return</th><th>Net ROI</th></tr></thead>
+      <tbody>${rows}</tbody>
+    </table>
+    ${totalInvestment > 0 ? '' : '<p>Percentages are unavailable when initial investment is zero.</p>'}
+  `;
 }
 window.updateROI = updateROI;
 

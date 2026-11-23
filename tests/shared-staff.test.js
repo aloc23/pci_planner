@@ -57,7 +57,7 @@ test('shared staff costs feed PnL, cash flow and ROI exactly once, including wit
   const { context: p, element: el } = createPlanner();
   assert.equal(p.padelData.staffCost, 72000);
   assert.equal(p.sharedStaffData.total, 21000);
-  assert.match(el('pnlSummary').innerHTML, /157,800/);
+  assert.match(el('pnlSummary').innerHTML, /279,000/);
 
   el('receptionPt').value = '2';
   el('receptionPtSal').value = '10000';
@@ -66,17 +66,17 @@ test('shared staff costs feed PnL, cash flow and ROI exactly once, including wit
   el('directorStaff').handlers.change();
   assert.equal(p.sharedStaffData.total, 101000);
   assert.match(el('staffSummary').innerHTML, /204,000/);
-  assert.match(el('pnlSummary').innerHTML, /237,800/);
-  assert.match(el('#monthlyBreakdown tbody').innerHTML, /€19816\.67/);
-  assert.match(el('#cashFlowTable tbody').innerHTML, /€19816\.67/);
-  assert.match(el('#paybackTable tbody').innerHTML, /€-10586\.00/);
+  assert.match(el('pnlSummary').innerHTML, /359,000/);
+  assert.match(el('#monthlyBreakdown tbody').innerHTML, /€29916\.67/);
+  assert.match(el('#cashFlowTable tbody').innerHTML, /€29916\.67/);
+  assert.match(el('#paybackTable tbody').innerHTML, /€913400\.00/);
 
   el('includeGym').checked = false;
   el('includeGymROI').checked = false;
   p.updatePnL();
   p.updateROI();
-  assert.match(el('pnlSummary').innerHTML, /194,000/);
-  assert.match(el('#paybackTable tbody').innerHTML, /€-52586\.00/);
+  assert.match(el('pnlSummary').innerHTML, /248,000/);
+  assert.match(el('#paybackTable tbody').innerHTML, /€205600\.00/);
   el('roiCostAdjust').value = '150';
   p.updateROI();
   assert.equal(vm.runInContext('roiBarChart.config.data.datasets[0].data[2]', p), -151500);

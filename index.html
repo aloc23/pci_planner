@@ -130,13 +130,18 @@
     <!-- STAFF TAB -->
     <section id="staff" class="tab-content hidden">
       <h2>Staffing</h2>
-      <p>Enter staff counts and annual salary per person. Allocate each cost to either Padel or Gym to avoid double counting.</p>
+      <p>Enter staff counts and annual gross salary per person. Reception and directors are shared costs, included in full even when Gym is excluded. Do not enter the same staff in multiple sections.</p>
+      <div class="section-group" id="receptionStaff">
+        <h3>Reception Staff (Shared)</h3>
+        <label>Full-time Reception: <input id="padelFtRec" type="number" min="0" value="1"></label>
+        <label>FT Reception Salary: <input id="padelFtRecSal" type="number" min="0" value="21000"></label>
+        <label>Part-time Reception: <input id="receptionPt" type="number" min="0" value="0"></label>
+        <label>PT Reception Salary: <input id="receptionPtSal" type="number" min="0" value="0"></label>
+      </div>
       <div class="section-group" id="padelStaff">
         <h3>Padel Staff</h3>
         <label>Full-time Manager: <input id="padelFtMgr" type="number" min="0" value="1"></label>
         <label>FT Mgr Salary: <input id="padelFtMgrSal" type="number" min="0" value="35000"></label>
-        <label>Full-time Reception: <input id="padelFtRec" type="number" min="0" value="1"></label>
-        <label>FT Rec Salary: <input id="padelFtRecSal" type="number" min="0" value="21000"></label>
         <label>Full-time Coach: <input id="padelFtCoach" type="number" min="0" value="1"></label>
         <label>FT Coach Salary: <input id="padelFtCoachSal" type="number" min="0" value="25000"></label>
         <label>Part-time Coach: <input id="padelPtCoach" type="number" min="0" value="1"></label>
@@ -152,6 +157,11 @@
         <label>PT Trainer Salary: <input id="gymPtTrainerSal" type="number" min="0" value="9000"></label>
         <label>Additional Staff: <input id="gymAddStaff" type="number" min="0" value="0"></label>
         <label>Add Staff Salary: <input id="gymAddStaffSal" type="number" min="0" value="0"></label>
+      </div>
+      <div class="section-group" id="directorStaff">
+        <h3>Directors (Shared)</h3>
+        <label>Number of Directors: <input id="directorCount" type="number" min="0" value="0"></label>
+        <label>Annual Salary per Director: <input id="directorSalary" type="number" min="0" value="0"></label>
       </div>
       <div id="staffSummary" class="summary" aria-live="polite"></div>
     </section>
